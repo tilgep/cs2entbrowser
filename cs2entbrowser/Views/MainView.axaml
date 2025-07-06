@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:cs2entbrowser.ViewModels"
+			 xmlns:views="clr-namespace:cs2entbrowser.Views"
+             mc:Ignorable="d" d:DesignWidth="1440" d:DesignHeight="749"
+             x:Class="cs2entbrowser.Views.MainView"
+             x:DataType="vm:MainViewModel">
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+	<Panel>
+		<Grid RowDefinitions="28,3*" ColumnDefinitions="*" ClipToBounds="True">
+			<DockPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" ClipToBounds="True">
+				<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4">
+					<TextBlock VerticalAlignment="Center" FontWeight="Bold"
+							   Text="Heyyy"
+							   Margin="16 0 12 0" />
+					<Menu>
+						<MenuItem Header="_File">
+							<MenuItem Header="_Open..." HotKey="Ctrl+O"
+									  InputGesture="Ctrl+O" Command="{Binding OpenFileCommand}" />
+							<MenuItem Header="_Open Recent" Name="RecentFiles" ItemsSource="{Binding RecentFiles}" />
+							<Separator />
+							<MenuItem Header="_Close" Command="{Binding CloseCommand}" />
+							<MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
+						</MenuItem>
+						<MenuItem Header="_About" Command="{Binding AboutCommand}" />
+					</Menu>
+				</StackPanel>
+			</DockPanel>
+			<TabControl Grid.Row="1" Margin="0 0 0 5" SelectedIndex="{Binding ActivePageIndex}">
+				<TabItem Header="Workshop Browser">
+					<views:WorkshopBrowserView />
+				</TabItem>
+				<TabItem Header="{Binding EntityBrowserHeader}" >
+					<views:EntityBrowserView />
+				</TabItem>
+			</TabControl>
+		</Grid>
+	</Panel>
+</UserControl>

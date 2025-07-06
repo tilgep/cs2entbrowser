@@ -1,0 +1,251 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1440" d:DesignHeight="749"
+			 xmlns:vm="clr-namespace:cs2entbrowser.ViewModels"
+			 xmlns:vme="clr-namespace:cs2entbrowser.ViewModels.Entity"
+			 xmlns:views="clr-namespace:cs2entbrowser.Views"
+			 xmlns:ctrls="clr-namespace:cs2entbrowser.Controls"
+			 xmlns:utils="clr-namespace:cs2entbrowser.Utils"
+             x:Class="cs2entbrowser.Views.EntityBrowserView"
+			 x:DataType="vm:EntityBrowserViewModel">
+	<UserControl.Resources>
+		<utils:BoolToMatchedColourConverter x:Key="MatchedColourConverter" />
+	</UserControl.Resources>
+	<Panel>
+		<Border BorderBrush="#444444" BorderThickness="1">
+		<!--
+	<TextBlock FontSize="28" 
+			   HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+			   IsVisible="{Binding !IsLoaded}">
+		No VPK loaded<LineBreak />
+		Load one from the Workshop Browser or File > Open
+	</TextBlock>
+	<Grid RowDefinitions="50,*" IsVisible="{Binding IsLoaded}">-->
+	<Grid RowDefinitions="50,*">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="2*" MinWidth="200" />
+			<ColumnDefinition Width="3" MinWidth="3" MaxWidth="3" />
+			<ColumnDefinition Width="3*" MinWidth="200" />
+		</Grid.ColumnDefinitions>
+		<WrapPanel Grid.Row="0" Grid.ColumnSpan="3" VerticalAlignment="Center">
+			<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsAdvancedSearch}" Margin="25 0 0 0">
+				<TextBlock Text="Detailed Search"/>
+			</CheckBox>
+			<ctrls:ClearableTextBox Text="{Binding BasicSearchText}" Watermark="Search All..."
+					 MaxHeight="32" Width="300"
+					 Name="BasicSearchTextBox"
+					 HorizontalAlignment="Right" Margin="45 0 0 0"
+           IsVisible="{Binding !IsAdvancedSearch}" />
+			<PathIcon Data="{StaticResource question_regular}" Height="14" IsVisible="{Binding !IsAdvancedSearch}" >
+				<ToolTip.Tip>
+					<TextBlock FontSize="14">
+						<Run FontSize="20"  Text="Basic Search" />
+						<Underline></Underline>
+						<LineBreak/>
+						<Run Text="Search everything (Keys,Values,Outputs)" />
+						<LineBreak/>
+						<Run Text="Use > to separate parts of an output e.g." />
+            <LineBreak/>
+						<Run FontFamily="consolas" Foreground="#aaf">"OnStartTouch>entname>Kill"</Run>
+					</TextBlock>
+				</ToolTip.Tip>
+			</PathIcon>
+
+      <ctrls:ClearableTextBox Text="{Binding AdvancedSearchKeyText}" Watermark="Search Keys..."
+					 MaxHeight="32" Width="300"
+					 Name="AdvancedSearchKeyTextBox"
+					 HorizontalAlignment="Right" Margin="25 0 0 0"
+           IsVisible="{Binding IsAdvancedSearch}" />
+      <ctrls:ClearableTextBox Text="{Binding AdvancedSearchValueText}" Watermark="Search Values..."
+					 MaxHeight="32" Width="300"
+					 Name="AdvancedSearchValueTextBox"
+					 HorizontalAlignment="Right" Margin="15 0 0 0"
+           IsVisible="{Binding IsAdvancedSearch}" />
+      <ctrls:ClearableTextBox Text="{Binding AdvancedSearchOutputText}" Watermark="Search Outputs..."
+					 MaxHeight="32" Width="300"
+					 Name="AdvancedSearchOutputTextBox"
+					 HorizontalAlignment="Right" Margin="45 0 0 0"
+           IsVisible="{Binding IsAdvancedSearch}" />
+      <PathIcon Data="{StaticResource question_regular}" Height="14" IsVisible="{Binding IsAdvancedSearch}" >
+        <ToolTip.Tip>
+          <TextBlock FontSize="14">
+            <Run FontSize="20"  Text="Output Search" />
+            <LineBreak/>
+            <Run Text="Use > to separate parts of an output e.g." />
+            <LineBreak/>
+            <Run FontFamily="consolas" Foreground="#aaf">"OnStartTouch>entname>Kill"</Run>
+          </TextBlock>
+        </ToolTip.Tip>
+      </PathIcon>
+    </WrapPanel>
+		<Grid Grid.Column="0" Grid.Row="1" >
+			<Grid.RowDefinitions>
+				<RowDefinition Height="1*" />
+				<RowDefinition Height="3" MinHeight="3" MaxHeight="3" />
+				<RowDefinition Height="2*" />
+			</Grid.RowDefinitions>
+			<Border Grid.Row="0" BorderBrush="#555" BorderThickness="1">
+				<Grid>
+					<ScrollViewer  AllowAutoHide="False" Grid.Row="1">
+						<ItemsControl ItemsSource="{Binding VpkFiles}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Expander HorizontalAlignment="Stretch" MinHeight="40">
+										<Expander.Header>
+											<CheckBox Name="{Binding Id,StringFormat='\{0\}'}"
+												Content="{Binding Name,StringFormat='_\{0\}'}" 
+												IsThreeState="True" IsChecked="{Binding Enabled}"
+													  />
+										</Expander.Header>
+										<ItemsControl ItemsSource="{Binding EntityLumps}">
+											<ItemsControl.ItemTemplate>
+												<DataTemplate>
+													<Grid ColumnDefinitions="20,*" RowDefinitions="28,*" Margin="0 8 0 0">
+														<CheckBox Grid.Column="1" Grid.Row="0" 
+																  Name="{Binding Id,StringFormat='\{0\}'}"
+																  Content="{Binding Name,StringFormat='_\{0\}'}" 
+																  VerticalAlignment="Center"
+																  IsChecked="{Binding Enabled}" />
+													</Grid>
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</ScrollViewer>
+				</Grid>	
+			</Border>
+			<GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+			<ListBox Grid.Row="2" ItemsSource="{Binding FilteredItems}"
+					 ScrollViewer.AllowAutoHide="False" ScrollViewer.VerticalScrollBarVisibility="Auto"
+					 SelectedItem="{Binding _SelectedItem}"
+					 SelectedIndex="{Binding SelectedIndex}">
+				<ListBox.Styles>
+					<Style Selector="ListBoxItem">
+						<Setter Property="Height" Value="28"/>
+					</Style>
+				</ListBox.Styles>
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" MinWidth="10" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<TextBlock Text="{Binding Classname}"  Grid.Column="0" FontFamily="Consolas" />
+							<TextBlock Text="{Binding ListTargetname}" Grid.Column="2" FontFamily="Consolas" Foreground="#ccccff" />
+						</Grid>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+			
+		</Grid>
+		<GridSplitter Grid.Column="1" Grid.Row="1" ResizeDirection="Columns" />
+		<Grid Grid.Column="2" Grid.Row="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="32" />
+				<RowDefinition Height="3*" MinHeight="30" />
+				<RowDefinition Height="3" MinHeight="3" MaxHeight="3" />
+				<RowDefinition Height="2*" MinHeight="30" MaxHeight="500" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*" />
+				<ColumnDefinition Width="1" />
+				<ColumnDefinition Width="1*" />
+			</Grid.ColumnDefinitions>
+			
+			<ctrls:ClearableTextBox Grid.Row="0" Grid.Column="0" Name="PropertySearch_TextBox"
+									Text="{Binding PropertySearchText}" Watermark="Search Properties..."
+									CornerRadiusA="0" TextInput="PropertySearchText_TextInput" />
+			<GridSplitter Grid.Column="1" Grid.Row="0" ResizeDirection="Columns" Width="1" />
+      
+      <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
+        <Rectangle Width="32" />
+				<SelectableTextBlock Text="{Binding SelectedItem.EntLumpName}"/>
+      </StackPanel>
+			
+			<DataGrid Grid.Row="1" Grid.ColumnSpan="3" 
+					  ItemsSource="{Binding SelectedItem.FilteredProps}"
+					  Margin="0 0 0 16"
+					  IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="False"
+					  CanUserSortColumns="False" 
+					  SelectionMode="Extended">
+				<DataGrid.Columns>
+					<DataGridTemplateColumn Header="Key" SortMemberPath="Key">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityPropertyViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Key}" Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="Value" SortMemberPath="Value">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityPropertyViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Value}" Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+				</DataGrid.Columns>
+			</DataGrid>
+			
+			<GridSplitter Grid.Row="2" Grid.ColumnSpan="3" ResizeDirection="Rows" />
+			
+			<DataGrid Grid.Row="3" Grid.ColumnSpan="3" 
+					  ItemsSource="{Binding SelectedItem.Connections}"
+					  IsReadOnly="True" CanUserResizeColumns="True"
+					  ScrollViewer.VerticalScrollBarVisibility="Auto">
+				<DataGrid.Columns>
+					<DataGridTemplateColumn Header="Output" SortMemberPath="Output">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityOutputViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Output}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="Target" SortMemberPath="Target">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityOutputViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Target}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="Input" SortMemberPath="Input">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityOutputViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Input}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="Parameter" SortMemberPath="Parameter">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityOutputViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Parameter}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="Delay" SortMemberPath="Delay" >
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityOutputViewModel">
+								<ctrls:CopyableTextBox Text="{Binding Delay}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="TimesToFire" SortMemberPath="TimesToFire">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate DataType="vme:EntityOutputViewModel">
+								<ctrls:CopyableTextBox Text="{Binding TimesToFire}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+				</DataGrid.Columns>
+			</DataGrid>
+		</Grid>
+	</Grid>
+		</Border>
+	</Panel>
+</UserControl>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35004.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cs2entbrowser", "cs2entbrowser\cs2entbrowser.csproj", "{B5DE47A4-7A9D-4473-AE38-9DA194D47992}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cs2entbrowser.Desktop", "cs2entbrowser.Desktop\cs2entbrowser.Desktop.csproj", "{CC517B55-54B6-4EE7-B7DB-80DF8A504CEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5DE47A4-7A9D-4473-AE38-9DA194D47992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5DE47A4-7A9D-4473-AE38-9DA194D47992}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5DE47A4-7A9D-4473-AE38-9DA194D47992}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5DE47A4-7A9D-4473-AE38-9DA194D47992}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC517B55-54B6-4EE7-B7DB-80DF8A504CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC517B55-54B6-4EE7-B7DB-80DF8A504CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC517B55-54B6-4EE7-B7DB-80DF8A504CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC517B55-54B6-4EE7-B7DB-80DF8A504CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41133313-9374-457A-9B7A-D44D91BD1A71}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:ctrls="clr-namespace:cs2entbrowser.Controls"
+             x:Class="cs2entbrowser.Controls.ClearableTextBox"
+			 x:DataType="ctrls:ClearableTextBox">
+	<Panel PointerEntered="Panel_PointerEntered" PointerExited="Panel_PointerExited"
+			 HorizontalAlignment="Stretch">
+
+		<TextBox Name="InputBox" Text="{Binding $parent[ctrls:ClearableTextBox].Text, Mode=TwoWay}"
+				 Watermark="{Binding $parent[ctrls:ClearableTextBox].Watermark}"
+				 FontFamily="Consolas" CornerRadius="{Binding $parent[ctrls:ClearableTextBox].CornerRadiusA}" />
+		<Button HorizontalAlignment="Right" Name="ClearButton" IsVisible="False"
+				VerticalAlignment="Stretch"
+				Click="Button_Click" Height="28" Width="28" Margin="0 0 2 0">
+			<PathIcon Data="{StaticResource dismiss_regular}" MaxHeight="10" MaxWidth="10" />
+		</Button>
+
+	</Panel>
+</UserControl>

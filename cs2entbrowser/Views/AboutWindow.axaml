@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="400"
+        Width="250" Height="400"
+        CanResize="False" Topmost="True"
+        WindowStartupLocation="CenterOwner"
+        x:Class="cs2entbrowser.AboutWindow"
+        Icon="/Assets/EntBrowser.png"
+        Title="About">
+  <Panel>
+    <Grid RowDefinitions="50,15,*">
+      <TextBlock Grid.Row="0" Text="CS2EntBrowser" FontSize="24" HorizontalAlignment="Center" />
+
+      <TextBlock Grid.Row="2" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="10 0 0 0">
+        <Run Text="Made by:" TextDecorations="Underline" />
+        <LineBreak/>
+        <InlineUIContainer>
+          <HyperlinkButton Content="tilgep" NavigateUri="https://github.com/tilgep" />
+        </InlineUIContainer>
+        <LineBreak/>
+        <LineBreak/>
+        <Run Text="Made With:" TextDecorations="Underline" />
+        <LineBreak/>
+        <InlineUIContainer>
+          <HyperlinkButton Content="Avalonia" NavigateUri="https://avaloniaui.net/" />
+        </InlineUIContainer>
+        <LineBreak/>
+        <LineBreak/>
+        <Run Text="Thanks to:" TextDecorations="Underline" />
+        <LineBreak/>
+        <InlineUIContainer>
+          <HyperlinkButton Content="Source2Viewer" NavigateUri="https://valveresourceformat.github.io/" />
+        </InlineUIContainer>
+        <LineBreak/>
+        <InlineUIContainer>
+          <HyperlinkButton Content="Lumper" NavigateUri="https://github.com/momentum-mod/lumper" />
+        </InlineUIContainer>
+      </TextBlock>
+    </Grid>
+  </Panel>
+</Window>

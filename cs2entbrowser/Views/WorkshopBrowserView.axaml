@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="clr-namespace:cs2entbrowser.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1440" d:DesignHeight="749"
+             x:Class="cs2entbrowser.Views.WorkshopBrowserView"
+			 x:DataType="vm:WorkshopBrowserViewModel">
+	<Design.DataContext>
+		<vm:WorkshopBrowserViewModel />
+	</Design.DataContext>
+	
+	<Grid RowDefinitions="45,45,32,*">
+		<Grid Grid.Row="0" ColumnDefinitions="140,450,100,15,Auto" RowDefinitions="40">
+			<TextBlock Grid.Column="0" Text="Workshop Folder:"  HorizontalAlignment="Right" Padding="0 0 5 0" />
+			<TextBox Grid.Column="1" Text="{Binding WorkshopFolder}" Width="450" IsEnabled="False" Height="40" VerticalContentAlignment="Center"/>
+			<Button Grid.Column="2" Content="Browse..." Click="BrowseBtn_Click" Height="40" VerticalContentAlignment="Center" Margin="0 0 20 0" />
+			<Button Grid.Column="4" Content="Refresh" Command="{Binding RefreshClick}" />
+		</Grid>
+		<Grid Grid.Row="1" ColumnDefinitions="140,400,20,200" RowDefinitions="40">
+			<TextBlock Grid.Column="0" Text="Search:"  HorizontalAlignment="Right" Padding="0 0 5 0" />
+			<TextBox Grid.Column="1" Text="{Binding SearchText}" Width="400" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="40"/>
+			<TextBlock Grid.Column="3">
+				<TextBlock.Text>
+					<MultiBinding StringFormat="\{0\} / \{1\} addons">
+						<Binding Path="FilteredItems.Count" FallbackValue="0" />
+						<Binding Path="ItemCount" FallbackValue="" />
+					</MultiBinding>
+				</TextBlock.Text>
+			</TextBlock>
+		</Grid>
+		<Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource SystemAccentColor}">
+			<Grid ColumnDefinitions="205,120, 25, *, 400">
+				<TextBlock Grid.Column="1" Text="Workshop ID" />
+				<TextBlock Grid.Column="3" Text="Addon Name" />
+        <TextBlock Grid.Column="4" Text="VPK Size (Bytes)" />
+			</Grid>
+		</Border>
+		<Border Grid.Row="3" Background="{DynamicResource SystemAccentColor}" BorderThickness="2">
+			<ListBox ItemsSource="{Binding FilteredItems}" 
+					 ScrollViewer.AllowAutoHide="False" ScrollViewer.VerticalScrollBarVisibility="Auto"
+					 SelectionMode="Toggle">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Grid ColumnDefinitions="40,40,100,15, 120, 15, *, 140, 230">
+							<Button Content="Folder" Grid.Column="0" Command="{Binding FolderClick}">
+                <PathIcon Data="{StaticResource folder_regular}" MaxHeight="20" MaxWidth="20" />
+              </Button>
+							<Button Grid.Column="1" Command="{Binding SteamClick}">
+                <PathIcon Data="{StaticResource steam}" MaxHeight="20" MaxWidth="20" />
+              </Button>
+							<Button Content="EntBrowser" Grid.Column="2" Command="{Binding EntBrowserClick}"/>
+              
+							<SelectableTextBlock Grid.Column="4" Text="{Binding Id}" />
+							<SelectableTextBlock Grid.Column="6" Text="{Binding Title}" />
+              <SelectableTextBlock Grid.Column="7" Text="{Binding BytesSizeText}" />
+              <SelectableTextBlock Grid.Column="8" Text="{Binding SizeText}" />
+						</Grid>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+			
+		</Border>
+	</Grid>
+</UserControl>

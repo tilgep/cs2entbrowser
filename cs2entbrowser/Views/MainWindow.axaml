@@ -1,0 +1,13 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:cs2entbrowser.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:cs2entbrowser.Views"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="cs2entbrowser.Views.MainWindow"
+        Icon="/Assets/EntBrowser.ico"
+        Title="CS2EntBrowser"
+		ExtendClientAreaToDecorationsHint="True">
+        <views:MainView />
+</Window>

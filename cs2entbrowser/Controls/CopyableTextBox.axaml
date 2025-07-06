@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:ctrls="clr-namespace:cs2entbrowser.Controls"
+             x:Class="cs2entbrowser.Controls.CopyableTextBox"
+			 x:DataType="ctrls:CopyableTextBox">
+	<Panel PointerEntered="Panel_PointerEntered" PointerExited="Panel_PointerExited"
+		   HorizontalAlignment="Stretch">
+		
+			<TextBox Name="InputBox" Text="{Binding $parent[ctrls:CopyableTextBox].Text, Mode=TwoWay}"
+					 IsReadOnly="True"
+					 FontFamily="Consolas" CornerRadius="0" />
+			<Button HorizontalAlignment="Right" Name="CopyButton" IsVisible="False"
+					VerticalAlignment="Stretch"
+					Click="Button_Click" Height="32" >
+				<PathIcon Data="{StaticResource copy_regular}" />
+			</Button>
+			
+	</Panel>
+</UserControl>
