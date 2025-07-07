@@ -38,18 +38,13 @@ public sealed class VpkService : ReactiveObject
     public int LumpId { get; set; } = 0;
 
     private string _loadedVpk = "";
-    public string LoadedVpk
+    public string RequestedPath
     {
         get => _loadedVpk;
         set => this.RaiseAndSetIfChanged(ref _loadedVpk, value);
     }
 
-    private string _loadedTitle = "";
-    public string LoadedTitle
-    {
-        get => _loadedTitle;
-        set => this.RaiseAndSetIfChanged(ref _loadedTitle, value);
-    }
+    public string RequestedTitle = "";
 
     public LoadState PreviousState = LoadState.Unloaded;
 
@@ -60,42 +55,57 @@ public sealed class VpkService : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _state, value);
     }
 
-    public List<VpkFileViewModel> VpkFiles { get; private set; } = new();
+    public List<string> OpenPaths = new();
 
     private void SetState(LoadState newState)
     {
         PreviousState = State;
         State = newState;
     }
-    public async Task<bool> OpenVpk(string _path, string _title = "")
+
+    public void RequestLoad(string path, string title)
     {
-        if (State == LoadState.Loading)
-            return false;
-        if(State == LoadState.Loaded)
+        Debug.WriteLine("blehhh");
+        RequestedTitle = title;
+        RequestedPath = path;
+    }
+
+    public LoadedVpk? OpenVpk(string _path, string _title = "")
+    {
+        if (_path == "")
+            return null;
+
+        // Check if already loaded
+        for(int i = 0; i < OpenPaths.Count; i++)
         {
-            UnloadVpk();
+            if (OpenPaths[i] == _path)
+                return null;
         }
 
-        SetState(LoadState.Loading);
 
         Debug.WriteLine("Service:: Notifying new VPK is being opened: " + _path);
-        LoadedVpk = _path;
-        LoadedTitle = _title;
+        //LoadedVpk = _path;
+        //LoadedTitle = _title;
 
         List<VpkFile>? _vpks = EntityLumpParser.ParseFromVpk(_path);
         if(_vpks == null)
         {
-            UnloadVpk();
+            //UnloadVpk();
             ShowVpkFileError();
-            return false;
+            return null;
         }
 
-        SettingsService.Instance.AddRecentFile(LoadedVpk, LoadedTitle);
+        SettingsService.Instance.AddRecentFile(_path, _title);
 
-        VpkFiles = _vpks.Select(ParseVpkViewModel).ToList();
+        LoadedVpk vpk = new LoadedVpk(_title, _path);
+        List<VpkFileViewModel> VpkFiles = _vpks.Select(ParseVpkViewModel).ToList();
+
+        for(int i = 0;i < VpkFiles.Count;i++)
+            vpk.VpkFiles.Add(VpkFiles[i]);
+
         Debug.WriteLine("VpkService parsed: " + VpkFiles.Count.ToString() + " vpkfiles");
-        SetState(LoadState.Loaded);
-        return true;
+        //SetState(LoadState.Loaded);
+        return vpk;
     }
 
     private static VpkFileViewModel ParseVpkViewModel(VpkFile vpk)
@@ -106,9 +116,9 @@ public sealed class VpkService : ReactiveObject
     public void UnloadVpk()
     {
         SetState(LoadState.Unloading);
-        LoadedTitle = "";
-        LoadedVpk = "";
-        VpkFiles.Clear();
+        //LoadedTitle = "";
+        //LoadedVpk = "";
+        //VpkFiles.Clear();
         LumpId = 0;
         SetState(LoadState.Unloaded);
     }

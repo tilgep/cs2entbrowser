@@ -19,12 +19,8 @@ class EntityBrowserViewModel : ViewModelBase
 {
     public EntityBrowserView View { get; private set; }
 
-    private string _loadedVpkTitle = "";
-    public string LoadedVpkTitle
-    {
-        get => _loadedVpkTitle;
-        set => this.RaiseAndSetIfChanged(ref _loadedVpkTitle, value);
-    }
+    public string Title;
+    public string Path;
 
     private bool _isAdvancedSearch = false;
     public bool IsAdvancedSearch
@@ -110,9 +106,14 @@ class EntityBrowserViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isLoaded, value);
     }
     public EntityBrowserViewModel() { }
-    public EntityBrowserViewModel(EntityBrowserView view)
+    public EntityBrowserViewModel(EntityBrowserView view, LoadedVpk vpk)
     {
         View = view;
+
+        if (SettingsService.Instance.Loaded)
+        {
+            IsAdvancedSearch = SettingsService.Instance.IsUsingDetailedSearch;
+        }
 
         this.WhenAnyValue(x => x._SelectedItem)
             .Subscribe(_ => SelectionChanged());
@@ -139,17 +140,11 @@ class EntityBrowserViewModel : ViewModelBase
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(_ => SettingsLoadedStateChanged());
 
-        VpkService.Instance.WhenAnyValue(x => x.LoadedVpk)
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(_ => LoadedVpkChanged());
-
-        VpkService.Instance.WhenAnyValue(x => x.LoadedTitle)
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(_ => LoadedTitleChanged());
-
-        VpkService.Instance.WhenAnyValue(x => x.State)
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(_ => LoadedStateChanged());
+        Title = vpk.Title;
+        Path = vpk.Path;
+        PopulateLumps(vpk);
+        ShowAllEntities();
+        IsLoaded = true;
     }
 
     public void Unload()
@@ -280,15 +275,11 @@ class EntityBrowserViewModel : ViewModelBase
         if(SelectedItem != null)
             SelectedItem.FilterProperties(PropertySearchText.Trim().ToLower());
     }
-    public void LoadedVpkChanged()
-    {
-        Debug.WriteLine("EBVM:: Now loaded: " + VpkService.Instance.LoadedVpk);
-    }
 
     public void LoadedTitleChanged()
     {
-        Debug.WriteLine("new loaded title: "+ VpkService.Instance.LoadedTitle);
-        LoadedVpkTitle = VpkService.Instance.LoadedTitle;
+        //Debug.WriteLine("new loaded title: "+ VpkService.Instance.LoadedTitle);
+        //LoadedVpkTitle = VpkService.Instance.LoadedTitle;
     }
 
     public void LoadedStateChanged()
@@ -302,23 +293,21 @@ class EntityBrowserViewModel : ViewModelBase
 
         if(VpkService.Instance.State == LoadState.Loaded && VpkService.Instance.PreviousState == LoadState.Loading)
         {
-            PopulateLumps();
+           // PopulateLumps();
             ShowAllEntities();
             IsLoaded = true;
         }
     }
 
-    private void PopulateLumps()
+    private void PopulateLumps(LoadedVpk vpk)
     {
         //Add vpk names and entity lump names to the checkbox exanders
-        foreach (var file in VpkService.Instance.VpkFiles)
+        foreach (var file in vpk.VpkFiles)
         {
             VpkFiles.Add(file);
-            Debug.WriteLine("!!!!VPKFILE.NAME: " + file.Name);
             VpkFiles[VpkFiles.Count - 1].WhenAnyValue(x => x.Updated)
                 .Subscribe(_ => LumpsChanged());
         }
-        
     }
 
     private void ShowAllEntities()

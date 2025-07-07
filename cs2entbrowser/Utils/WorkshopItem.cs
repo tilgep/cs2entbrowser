@@ -51,7 +51,7 @@ class WorkshopItem : ViewModelBase
 
         GetVpkSize();
 
-        Debug.WriteLine("id:"+Id+"  Name:"+Title+"  Folder:"+Folder);
+        //Debug.WriteLine("id:"+Id+"  Name:"+Title+"  Folder:"+Folder);
     }
 
     async void GetVpkSize()
@@ -84,21 +84,21 @@ class WorkshopItem : ViewModelBase
         Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
     }
 
-    public async void EntBrowserClick()
+    public void EntBrowserClick()
     {
         Debug.WriteLine("Clicked " + Title + " EntBrowser");
 
         string vpk = Folder + "\\" + Id + "_dir.vpk";
         if(File.Exists(vpk))
         {
-            await VpkService.Instance.OpenVpk(vpk, Title);
+            VpkService.Instance.RequestLoad(vpk, Title);
         }
         else
         {
             vpk = Folder + "\\" + Id + ".vpk";
             if(File.Exists(vpk))
             {
-                await VpkService.Instance.OpenVpk(vpk, Title);
+                VpkService.Instance.RequestLoad(vpk, Title);
             }
             else
             {

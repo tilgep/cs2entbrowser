@@ -26,20 +26,14 @@
 									  InputGesture="Ctrl+O" Command="{Binding OpenFileCommand}" />
 							<MenuItem Header="_Open Recent" Name="RecentFiles" ItemsSource="{Binding RecentFiles}" />
 							<Separator />
-							<MenuItem Header="_Close" Command="{Binding CloseCommand}" />
 							<MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
 						</MenuItem>
 						<MenuItem Header="_About" Command="{Binding AboutCommand}" />
 					</Menu>
 				</StackPanel>
 			</DockPanel>
-			<TabControl Grid.Row="1" Margin="0 0 0 5" SelectedIndex="{Binding ActivePageIndex}">
-				<TabItem Header="Workshop Browser">
-					<views:WorkshopBrowserView />
-				</TabItem>
-				<TabItem Header="{Binding EntityBrowserHeader}" >
-					<views:EntityBrowserView />
-				</TabItem>
+			<TabControl Grid.Row="1" Margin="0 0 0 5" SelectedIndex="{Binding ActivePageIndex}"
+                  ItemsSource="{Binding Tabs}">
 			</TabControl>
 		</Grid>
 	</Panel>

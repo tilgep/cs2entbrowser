@@ -15,15 +15,14 @@
 	</UserControl.Resources>
 	<Panel>
 		<Border BorderBrush="#444444" BorderThickness="1">
-		<!--
+      <Panel>
 	<TextBlock FontSize="28" 
 			   HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
 			   IsVisible="{Binding !IsLoaded}">
 		No VPK loaded<LineBreak />
 		Load one from the Workshop Browser or File > Open
 	</TextBlock>
-	<Grid RowDefinitions="50,*" IsVisible="{Binding IsLoaded}">-->
-	<Grid RowDefinitions="50,*">
+	<Grid RowDefinitions="50,*" IsVisible="{Binding IsLoaded}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="2*" MinWidth="200" />
 			<ColumnDefinition Width="3" MinWidth="3" MaxWidth="3" />
@@ -246,6 +245,8 @@
 			</DataGrid>
 		</Grid>
 	</Grid>
-		</Border>
+
+      </Panel>
+    </Border>
 	</Panel>
 </UserControl>

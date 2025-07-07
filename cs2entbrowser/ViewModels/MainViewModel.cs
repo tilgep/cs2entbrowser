@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media.TextFormatting;
 using Avalonia.Platform.Storage;
 using cs2entbrowser.Services;
 using cs2entbrowser.Utils;
@@ -43,6 +44,13 @@ public class MainViewModel : ViewModelBase
         set { this.RaiseAndSetIfChanged(ref _recentFiles, value); }
     }
 
+    private ObservableCollection<TabItem> _tabs = new();
+    public ObservableCollection<TabItem> Tabs
+    {
+        get { return _tabs; }
+        set { this.RaiseAndSetIfChanged(ref _tabs, value); }
+    }
+
     public MainViewModel() { }
     public MainViewModel(MainView view)
     {
@@ -54,9 +62,52 @@ public class MainViewModel : ViewModelBase
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(_ => SettingsLoadedStateChanged());
 
-        VpkService.Instance.WhenAnyValue(x => x.State)
+        VpkService.Instance.WhenAnyValue(x => x.RequestedPath)
             .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(_ => LoadedStateChanged());
+            .Subscribe(_ => VpkRequested());
+
+        AddInitialTabs();
+    }
+
+    private void AddInitialTabs()
+    {
+        Tabs.Clear();
+        Tabs.Add(new TabItem
+        {
+            Header = "Workshop Browser",
+            Content = new WorkshopBrowserView(),
+        });
+    }
+
+    private void AddTab(LoadedVpk vpk)
+    {
+        TabItem tab = new TabItem
+        {
+            Header = "_" + vpk.Title,
+            Content = new EntityBrowserView(vpk),
+            ContextMenu = new ContextMenu()
+        };
+
+        tab.ContextMenu.ItemsSource = new[]
+        {
+            new MenuItem
+            {
+                Header = "Close",
+                Command = ReactiveCommand.Create(() => CloseTab(tab, vpk.Path))
+            }
+        };
+
+        Tabs.Add(tab);
+
+        ActivePageIndex = Tabs.Count - 1;
+
+        AddRecentFiles();
+    }
+
+    public void CloseTab(TabItem tab, string path)
+    {
+        Tabs.Remove(tab);
+        VpkService.Instance.OpenPaths.Remove(path);
     }
 
     public async Task OpenFileCommand()
@@ -91,17 +142,9 @@ public class MainViewModel : ViewModelBase
         if (title == null)
             title = path.Substring(path.LastIndexOf('/') + 1, path.LastIndexOf('.') - (path.LastIndexOf('/') + 1));
         
-        await VpkService.Instance.OpenVpk(path, title);
-    }
-
-    public void CloseCommand()
-    {
-        if (VpkService.Instance.State != LoadState.Loaded)
-        {
-            return;
-        }
-
-        VpkService.Instance.UnloadVpk();
+        LoadedVpk? vpk = VpkService.Instance.OpenVpk(path, title);
+        if(vpk != null)
+            AddTab(vpk);
     }
 
     public void ExitCommand()
@@ -146,7 +189,7 @@ public class MainViewModel : ViewModelBase
         if (VpkService.Instance.State == LoadState.Loaded)
         {
             ActivePageIndex = (int)Page.EntityBrowser;
-            EntityBrowserHeader = ENTITY_BROWSER + " - " + VpkService.Instance.LoadedTitle;
+            //EntityBrowserHeader = ENTITY_BROWSER + " - " + VpkService.Instance.LoadedTitle;
 
             AddRecentFiles();
         }
@@ -190,9 +233,22 @@ public class MainViewModel : ViewModelBase
                 RecentFiles.Add(new MenuItem
                 {
                     Header = header,
-                    Command = ReactiveCommand.CreateFromTask(async () => await VpkService.Instance.OpenVpk(rf.Path, rf.Title)),
+                    Command = ReactiveCommand.Create(() => OpenRecentFile(rf.Path, rf.Title)),
                 });
             }
         }
+    }
+
+    public void OpenRecentFile(string path, string title)
+    {
+        LoadedVpk? vpk = VpkService.Instance.OpenVpk(path, title);
+        if (vpk != null)
+            AddTab(vpk);
+    }
+
+    public void VpkRequested()
+    {
+        Debug.WriteLine("VPK Requestsed");
+        OpenRecentFile(VpkService.Instance.RequestedPath, VpkService.Instance.RequestedTitle);
     }
 }

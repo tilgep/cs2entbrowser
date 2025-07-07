@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using cs2entbrowser.Controls;
+using cs2entbrowser.Utils;
 using cs2entbrowser.ViewModels;
 using System.Diagnostics;
 
@@ -23,17 +24,16 @@ public partial class EntityBrowserView : UserControl
     }
 
     private EntityBrowserViewModel _vm;
-    public EntityBrowserView()
+    public EntityBrowserView(LoadedVpk vpk)
     {
         InitializeComponent();
 
-        _vm = new EntityBrowserViewModel(this);
+        _vm = new EntityBrowserViewModel(this, vpk);
         DataContext = _vm;
     }
 
     public void PropertySearchText_TextInput(object? sender, RoutedEventArgs e)
     {
         PropSearchText = PropertySearch_TextBox.Text.Trim();
-        Debug.WriteLine("wah: " + PropSearchText);
     }
 }
