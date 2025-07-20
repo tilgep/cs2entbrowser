@@ -4,9 +4,12 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Joins;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace cs2entbrowser.ViewModels.Entity;
@@ -157,36 +160,34 @@ public class EntityViewModel : ViewModelBase
         }
     }
 
-    public bool BasicSearch(string text)
+    public bool BasicSearch(Regex search, string text, bool outputChain)
     {
         if (text == "")
             return true;
 
         foreach (var p in Properties)
         {
-            if (p.Key.ToLower().Contains(text) || p.Value.ToLower().Contains(text))
+            if (search.IsMatch(p.Key) || search.IsMatch(p.Value))
+            //if (p.Key.ToLower().Contains(text) || p.Value.ToLower().Contains(text))
                 return true;
         }
 
         foreach (var c in Connections)
         {
-            if (c.BasicSearch(text))
+            if (c.BasicSearch(search, text, outputChain))
                 return true;
         }
 
         return false;
     }
 
-    public bool SearchProperties(string key, string value)
+    public bool SearchProperties(Regex keySearch, Regex valueSearch)
     {
-        if (key == "" && value == "")
-            return true;
-
         foreach (var p in Properties)
         {
-            if(p.Key.ToLower().Contains(key))
+            if(keySearch.IsMatch(p.Key))
             {
-                if(p.Value.ToLower().Contains(value)) 
+                if(valueSearch.IsMatch(p.Value)) 
                     return true;
             }
         }
@@ -194,14 +195,32 @@ public class EntityViewModel : ViewModelBase
         return false;
     }
 
-    public bool SearchConnections(string text)
+    /**
+     * Searches for an exact match on the key
+     * But fuzzy for the value
+     */
+    public bool SearchPropertiesExact(string key, Regex value)
+    {
+        foreach (var p in Properties)
+        {
+            if (p.Key == key)
+            {
+                if (value.IsMatch(p.Value))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool SearchConnections(Regex search, string text, bool outputChain)
     {
         if (text == "")
             return true;
 
         foreach (var c in Connections)
         {
-            if (c.BasicSearch(text))
+            if (c.BasicSearch(search, text, outputChain))
                 return true;
         }
 

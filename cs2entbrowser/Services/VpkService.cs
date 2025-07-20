@@ -31,6 +31,19 @@ public enum Page
     EntityBrowser,
 }
 
+public enum SearchType
+{
+    Search,
+    Jump,
+}
+
+public enum SearchTarget
+{
+    Key,
+    Value,
+    Output,
+}
+
 public sealed class VpkService : ReactiveObject
 {
     public static VpkService Instance { get; } = new();
@@ -45,6 +58,15 @@ public sealed class VpkService : ReactiveObject
     }
 
     public string RequestedTitle = "";
+
+    public SearchTarget searchTarget { get; private set; }
+    public SearchType searchType { get; private set; }
+    private string _requestedSearchText = "";
+    public string RequestedSearch
+    {
+        get => _requestedSearchText;
+        set => this.RaiseAndSetIfChanged(ref _requestedSearchText, value);
+    }
 
     public LoadState PreviousState = LoadState.Unloaded;
 
@@ -65,9 +87,21 @@ public sealed class VpkService : ReactiveObject
 
     public void RequestLoad(string path, string title)
     {
-        Debug.WriteLine("blehhh");
         RequestedTitle = title;
         RequestedPath = path;
+    }
+
+    public void RequestSearch(SearchType type, SearchTarget target, string text)
+    {
+        Debug.WriteLine("target is " + (int)target);
+        searchType = type;
+        searchTarget = target;
+        RequestedSearch = text;
+    }
+
+    public void SearchFinished()
+    {
+        RequestedSearch = string.Empty;
     }
 
     public LoadedVpk? OpenVpk(string _path, string _title = "")

@@ -8,6 +8,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationIcon>EntBrowser.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>cs2entbrowser</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="EntBrowser.ico" />

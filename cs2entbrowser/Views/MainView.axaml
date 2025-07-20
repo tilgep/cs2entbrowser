@@ -26,8 +26,12 @@
 									  InputGesture="Ctrl+O" Command="{Binding OpenFileCommand}" />
 							<MenuItem Header="_Open Recent" Name="RecentFiles" ItemsSource="{Binding RecentFiles}" />
 							<Separator />
+              <MenuItem Header="_Close" HotKey="Ctrl+W" Name="CloseCommandButton"
+                        InputGesture="Ctrl+W" Command="{Binding CloseCommand}"
+                        IsEnabled="{Binding ActivePageIndex}" />
 							<MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
 						</MenuItem>
+            <MenuItem Header="_Options" Command="{Binding OptionsCommand}" />
 						<MenuItem Header="_About" Command="{Binding AboutCommand}" />
 					</Menu>
 				</StackPanel>

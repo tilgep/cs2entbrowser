@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:cs2entbrowser.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="400"
+        Width="350" Height="400"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        x:Class="cs2entbrowser.Views.OptionsWindow"
+        x:DataType="vm:OptionsWindowViewModel"
+        Icon="/Assets/EntBrowser.png"
+        Title="Options">
+  <Panel Margin="10 0">
+    <Grid RowDefinitions="50,15,*">
+      <TextBlock Grid.Row="0" Text="Options" FontSize="24" HorizontalAlignment="Center" />
+
+      <StackPanel Orientation="Vertical" Grid.Row="2" >
+        <TextBlock Text="Double Click Behaviour" />
+        <RadioButton Content="None" GroupName="DoubleClickMode" IsChecked="{Binding DblClkNone}" />
+        <RadioButton Content="Jump" GroupName="DoubleClickMode" IsChecked="{Binding DblClkJump}" />
+        <RadioButton Content="Search" GroupName="DoubleClickMode" IsChecked="{Binding DblClkSearch}" />
+      </StackPanel>
+    </Grid>
+  </Panel>
+</Window>

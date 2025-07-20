@@ -5,8 +5,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using cs2entbrowser.Controls;
 using cs2entbrowser.Services;
 using cs2entbrowser.Utils;
 using cs2entbrowser.ViewModels.Entity;
@@ -203,7 +206,9 @@ class EntityBrowserViewModel : ViewModelBase
         Debug.WriteLine("Basic Searching for: " + BasicSearchText);
         FilteredItems.Clear();
         
-        string search = BasicSearchText.ToLower();
+        string searchText = BasicSearchText.ToLower();
+        Regex search = ConvertToRegex(searchText);
+        bool outputChain = searchText.Contains('>');
         foreach (var file in VpkFiles)
         {
             foreach (var lump in file.EntityLumps)
@@ -213,7 +218,7 @@ class EntityBrowserViewModel : ViewModelBase
 
                 foreach (var ent in lump.Entities)
                 {
-                    if (ent.BasicSearch(search))
+                    if (ent.BasicSearch(search, searchText, outputChain))
                     {
                         FilteredItems.Add(ent);
                         if(ent == SelectedItem)
@@ -242,6 +247,13 @@ class EntityBrowserViewModel : ViewModelBase
         string keySearch = AdvancedSearchKeyText.ToLower();
         string valueSearch = AdvancedSearchValueText.ToLower();
         string outputSearch = AdvancedSearchOutputText.ToLower();
+
+        Regex keyRegex = ConvertToRegex(keySearch);
+        Regex valueRegex = ConvertToRegex(valueSearch);
+        Regex outputRegex = ConvertToRegex(outputSearch);
+
+        bool outputChain = outputSearch.Contains('>');
+
         foreach (var file in VpkFiles)
         {
             foreach (var lump in file.EntityLumps)
@@ -251,7 +263,8 @@ class EntityBrowserViewModel : ViewModelBase
 
                 foreach (var ent in lump.Entities)
                 {
-                    if (ent.SearchProperties(keySearch, valueSearch) && ent.SearchConnections(outputSearch))
+                    if (ent.SearchProperties(keyRegex, valueRegex) && 
+                        ent.SearchConnections(outputRegex, outputSearch, outputChain))
                     {
                         FilteredItems.Add(ent);
                         if (ent == SelectedItem)
@@ -312,13 +325,10 @@ class EntityBrowserViewModel : ViewModelBase
 
     private void ShowAllEntities()
     {
-        Debug.WriteLine("there are " + VpkFiles.Count + " vpkfiles");
         foreach (var file in VpkFiles)
         {
-            Debug.WriteLine("there are " + file.EntityLumps.Count + " entitylumps");
             foreach (var lump in file.EntityLumps)
             {
-                Debug.WriteLine("there are " + lump.Entities.Count + " entities");
                 foreach (var ent in lump.Entities)
                 {
                     FilteredItems.Add(ent);
@@ -334,5 +344,68 @@ class EntityBrowserViewModel : ViewModelBase
         {
             vpk.UpdateState();
         }
+    }
+
+    public void JumpToCommand(string target)
+    {
+        Debug.WriteLine("Jumping to: " + target);
+        Regex search = ConvertToRegex(target);
+        Debug.WriteLine("Regex: "+search.ToString());
+        foreach (var file in VpkFiles)
+        {
+            foreach (var lump in file.EntityLumps)
+            {
+                foreach (var ent in lump.Entities)
+                {
+                    if (ent.SearchPropertiesExact("targetname", search))
+                    {
+                        _SelectedItem = ent;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public void SearchForCommand(string target, SearchTarget searchTarget)
+    {
+        Debug.WriteLine("Searching for: " + target);
+        if (IsAdvancedSearch)
+        {
+            switch(searchTarget)
+            {
+                case SearchTarget.Key:
+                    AdvancedSearchKeyText = target; 
+                    break;
+                case SearchTarget.Value:
+                    AdvancedSearchValueText = target; 
+                    break;
+                case SearchTarget.Output:
+                    AdvancedSearchOutputText = target; 
+                    break;
+            }
+        }
+        else
+        {
+            BasicSearchText = target;
+        }
+    }
+
+    public static Regex ConvertToRegex(string text)
+    {
+        string escaped = Regex.Escape(text);
+        string pattern = escaped.Replace(@"\*", ".*");
+
+        // Add wildcards to start and end if not already present
+        if (!pattern.StartsWith(".*"))
+        {
+            pattern = ".*" + pattern;
+        }
+        if (!pattern.EndsWith(".*"))
+        {
+            pattern = pattern + ".*";
+        }
+
+        return new Regex(pattern, RegexOptions.IgnoreCase);
     }
 }

@@ -4,14 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="400"
         Width="250" Height="400"
-        CanResize="False" Topmost="True"
+        CanResize="False"
         WindowStartupLocation="CenterOwner"
         x:Class="cs2entbrowser.AboutWindow"
         Icon="/Assets/EntBrowser.png"
         Title="About">
   <Panel>
     <Grid RowDefinitions="50,15,*">
-      <TextBlock Grid.Row="0" Text="CS2EntBrowser v1.1" FontSize="24" HorizontalAlignment="Center" />
+      <TextBlock Grid.Row="0" Text="CS2EntBrowser v1.2" FontSize="24" HorizontalAlignment="Center" />
 
       <TextBlock Grid.Row="2" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="10 0 0 0">
         <Run Text="Made by:" TextDecorations="Underline" />

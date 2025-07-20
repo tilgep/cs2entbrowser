@@ -164,8 +164,11 @@
 			<GridSplitter Grid.Column="1" Grid.Row="0" ResizeDirection="Columns" Width="1" />
       
       <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
-        <Rectangle Width="32" />
-				<SelectableTextBlock Text="{Binding SelectedItem.EntLumpName}"/>
+        <Rectangle Width="16" />
+				<SelectableTextBlock>
+					<Run Text="Lump: " />
+          <Run Text="{Binding SelectedItem.EntLumpName}" />
+        </SelectableTextBlock>
       </StackPanel>
 			
 			<DataGrid Grid.Row="1" Grid.ColumnSpan="3" 
@@ -175,17 +178,19 @@
 					  CanUserSortColumns="False" 
 					  SelectionMode="Extended">
 				<DataGrid.Columns>
-					<DataGridTemplateColumn Header="Key" SortMemberPath="Key">
+					<DataGridTemplateColumn Header="Key" SortMemberPath="Key" Width="2*">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityPropertyViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Key}" Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
+								<ctrls:CopyableTextBox Text="{Binding Key}" 
+                     Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="Value" SortMemberPath="Value">
+					<DataGridTemplateColumn Header="Value" SortMemberPath="Value" Width="3*">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityPropertyViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Value}" Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
+								<ctrls:CopyableTextBox Text="{Binding Value}"
+                     Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
@@ -202,42 +207,42 @@
 					<DataGridTemplateColumn Header="Output" SortMemberPath="Output">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Output}" />
+								<ctrls:PropertyCell Text="{Binding Output}" Target="Output" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
 					<DataGridTemplateColumn Header="Target" SortMemberPath="Target">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Target}" />
+								<ctrls:PropertyCell Text="{Binding Target}" Target="Value" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
 					<DataGridTemplateColumn Header="Input" SortMemberPath="Input">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Input}" />
+								<ctrls:PropertyCell Text="{Binding Input}" Target="Output" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
 					<DataGridTemplateColumn Header="Parameter" SortMemberPath="Parameter">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Parameter}" />
+								<ctrls:PropertyCell Text="{Binding Parameter}" Target="Output" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
 					<DataGridTemplateColumn Header="Delay" SortMemberPath="Delay" >
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Delay}" />
+								<ctrls:PropertyCell Text="{Binding Delay}" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
 					<DataGridTemplateColumn Header="TimesToFire" SortMemberPath="TimesToFire">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:CopyableTextBox Text="{Binding TimesToFire}" />
+								<ctrls:PropertyCell Text="{Binding TimesToFire}" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>

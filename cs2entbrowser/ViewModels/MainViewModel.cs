@@ -66,6 +66,10 @@ public class MainViewModel : ViewModelBase
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(_ => VpkRequested());
 
+        VpkService.Instance.WhenAnyValue(x => x.RequestedSearch)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(_ => SearchRequested());
+
         AddInitialTabs();
     }
 
@@ -84,6 +88,7 @@ public class MainViewModel : ViewModelBase
         TabItem tab = new TabItem
         {
             Header = "_" + vpk.Title,
+            Tag = vpk.Path,
             Content = new EntityBrowserView(vpk),
             ContextMenu = new ContextMenu()
         };
@@ -93,7 +98,7 @@ public class MainViewModel : ViewModelBase
             new MenuItem
             {
                 Header = "Close",
-                Command = ReactiveCommand.Create(() => CloseTab(tab, vpk.Path))
+                Command = ReactiveCommand.Create(() => CloseTab(tab))
             }
         };
 
@@ -104,10 +109,10 @@ public class MainViewModel : ViewModelBase
         AddRecentFiles();
     }
 
-    public void CloseTab(TabItem tab, string path)
+    public void CloseTab(TabItem tab)
     {
+        VpkService.Instance.OpenPaths.Remove(((EntityBrowserView)tab.Content).GetPath());
         Tabs.Remove(tab);
-        VpkService.Instance.OpenPaths.Remove(path);
     }
 
     public async Task OpenFileCommand()
@@ -147,6 +152,14 @@ public class MainViewModel : ViewModelBase
             AddTab(vpk);
     }
 
+    public void CloseCommand()
+    {
+        if (ActivePageIndex > 0)
+        {
+            CloseTab(Tabs[ActivePageIndex]);
+        }
+    }
+
     public void ExitCommand()
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopApp)
@@ -155,6 +168,18 @@ public class MainViewModel : ViewModelBase
         }
     }
 
+    public void OptionsCommand()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            var mainWindow = desktop.MainWindow;
+            if (mainWindow != null)
+            {
+                OptionsWindow optionsWindow = new OptionsWindow();
+                optionsWindow.Show(mainWindow);
+            }
+        }
+    }
     public void AboutCommand()
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -182,19 +207,6 @@ public class MainViewModel : ViewModelBase
         {
             AddRecentFiles();
         }
-    }
-
-    public void LoadedStateChanged()
-    {
-        if (VpkService.Instance.State == LoadState.Loaded)
-        {
-            ActivePageIndex = (int)Page.EntityBrowser;
-            //EntityBrowserHeader = ENTITY_BROWSER + " - " + VpkService.Instance.LoadedTitle;
-
-            AddRecentFiles();
-        }
-        else if (VpkService.Instance.State == LoadState.Unloaded)
-            EntityBrowserHeader = ENTITY_BROWSER;
     }
 
     public void AddRecentFiles()
@@ -250,5 +262,37 @@ public class MainViewModel : ViewModelBase
     {
         Debug.WriteLine("VPK Requestsed");
         OpenRecentFile(VpkService.Instance.RequestedPath, VpkService.Instance.RequestedTitle);
+    }
+
+    public void SearchRequested()
+    {
+        if (VpkService.Instance.RequestedSearch == string.Empty)
+            return;
+
+        if (ActivePageIndex <= 0 || ActivePageIndex >= Tabs.Count)
+            return;
+
+        if (Tabs[ActivePageIndex].Content == null)
+            return;
+
+        EntityBrowserView view = (EntityBrowserView)Tabs[ActivePageIndex].Content;
+        if (view == null)
+            return;
+
+        EntityBrowserViewModel vm = (EntityBrowserViewModel)view.DataContext;
+        if (vm == null) 
+            return;
+
+        switch (VpkService.Instance.searchType)
+        {
+            case SearchType.Search:
+                vm.SearchForCommand(VpkService.Instance.RequestedSearch, VpkService.Instance.searchTarget);
+                break;
+            case SearchType.Jump:
+                vm.JumpToCommand(VpkService.Instance.RequestedSearch);
+                break;
+        }
+
+        VpkService.Instance.SearchFinished();
     }
 }

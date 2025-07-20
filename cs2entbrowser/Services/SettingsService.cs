@@ -10,6 +10,12 @@ using System.Text.Json;
 
 namespace cs2entbrowser.Services;
 
+public enum DoubleClickBehaviour
+{
+    None,
+    Jump,
+    Search,
+}
 public class RecentFile
 {
     public string Title { get; set; }
@@ -24,13 +30,10 @@ public class RecentFile
 
 public sealed class SettingsService : ReactiveObject
 {
+    public static int VERSION = 2;
     public static SettingsService Instance { get; } = new();
     public static string SettingsFolder = "CS2EntBrowser";
     public static string SettingsFileName = "settings.json";
-
-    public static string WorkshopFolderProperty = "WorkshopFolder";
-    public static string RecentFilesProperty = "RecentFiles";
-    public static string DetailedSearchProperty = "IsUsingDetailedSearch";
 
     public const int MAX_RECENT_FILES = 10;
 
@@ -46,6 +49,7 @@ public sealed class SettingsService : ReactiveObject
     string WorkshopFolder = @"C:/Program Files (x86)/Steam/steamapps/workshop";
     public List<RecentFile> RecentFiles = new();
     public bool IsUsingDetailedSearch = false;
+    public DoubleClickBehaviour DoubleClickBehaviour = DoubleClickBehaviour.Jump;
 
     public string GetWorkshopFolder()
     {
@@ -107,38 +111,81 @@ public sealed class SettingsService : ReactiveObject
         try
         {
             string jsonString = File.ReadAllText(SettingsFilePath);
-            Debug.WriteLine(jsonString);
             using JsonDocument doc = JsonDocument.Parse(jsonString);
 
             JsonElement root = doc.RootElement;
 
-            string? workshopfolder = root.GetProperty(WorkshopFolderProperty).GetString();
-            if (workshopfolder != null)
-            {
-                WorkshopFolder = workshopfolder;
+            Debug.WriteLine("Reading version");
+            if (root.TryGetProperty(nameof(VERSION), out JsonElement versionElem))
+            { 
+                if (versionElem.ValueKind == JsonValueKind.Number && versionElem.TryGetInt32(out int fileVersion))
+                {
+                    Debug.WriteLine("Settings Config Version: " + fileVersion.ToString());
+                    Debug.WriteLine("Current App Version: " + VERSION.ToString());
+                } 
             }
 
-            IsUsingDetailedSearch = root.GetProperty(DetailedSearchProperty).GetBoolean();
-
-            JsonElement recentFilesElem = root.GetProperty(RecentFilesProperty);
-            for (int i = 0; i < recentFilesElem.GetArrayLength(); i++)
+            Debug.WriteLine("Reading folder");
+            if (root.TryGetProperty(nameof(WorkshopFolder), out JsonElement folderElem))
             {
-                JsonElement recentFileObj = recentFilesElem[i];
-                string? path = recentFileObj.GetProperty("path").GetString();
-                string? title = recentFileObj.GetProperty("title").GetString();
-                if (title != null && path != null && File.Exists(path))
+                string? folder = folderElem.GetString();
+                if (folder != null)
                 {
-                    bool nope = false;
-                    for (int j = 0; j < RecentFiles.Count; j++)
-                    {
-                        if (RecentFiles[j].Path == path)
-                            nope = true;
-                    }
-
-                    if (!nope)
-                        RecentFiles.Add(new RecentFile(title, path));
+                    WorkshopFolder = folder;
                 }
             }
+
+            Debug.WriteLine("Reading detailed search");
+            if (root.TryGetProperty(nameof(IsUsingDetailedSearch), out JsonElement searchElem))
+            {
+                if(searchElem.ValueKind == JsonValueKind.True || searchElem.ValueKind == JsonValueKind.False)
+                    IsUsingDetailedSearch = searchElem.GetBoolean();
+            }
+
+            Debug.WriteLine("Reading double click");
+            if (root.TryGetProperty(nameof(DoubleClickBehaviour), out JsonElement clickElem))
+            {
+                if (clickElem.ValueKind == JsonValueKind.Number && clickElem.TryGetInt32(out int clickValue))
+                {
+                    DoubleClickBehaviour = (DoubleClickBehaviour)clickValue;
+                }
+            }
+
+            Debug.WriteLine("Reading recent files");
+            if (root.TryGetProperty(nameof(RecentFiles), out JsonElement recentFilesElem))
+            {
+                for (int i = 0; i < recentFilesElem.GetArrayLength(); i++)
+                {
+                    JsonElement recentFileObj = recentFilesElem[i];
+                    string? path = null;
+                    string? title = null;
+
+                    if (recentFileObj.TryGetProperty("path", out JsonElement pathElem))
+                    {
+                        path = pathElem.GetString();
+                    }
+
+                    if (recentFileObj.TryGetProperty("title", out JsonElement titleElem))
+                    {
+                        title = titleElem.GetString();
+                    }
+
+                    if (title != null && path != null && File.Exists(path))
+                    {
+                        bool nope = false;
+                        for (int j = 0; j < RecentFiles.Count; j++)
+                        {
+                            if (RecentFiles[j].Path == path)
+                                nope = true;
+                        }
+
+                        if (!nope)
+                            RecentFiles.Add(new RecentFile(title, path));
+                    }
+                }
+            }
+
+            Debug.WriteLine("Reading DONE");
         }
         catch (Exception ex)
         {
@@ -155,10 +202,12 @@ public sealed class SettingsService : ReactiveObject
                 using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
                 {
                     writer.WriteStartObject();
-                    writer.WriteString(WorkshopFolderProperty, WorkshopFolder);
-                    writer.WriteBoolean(DetailedSearchProperty, IsUsingDetailedSearch);
+                    writer.WriteNumber(nameof(VERSION), VERSION);
+                    writer.WriteString(nameof(WorkshopFolder), WorkshopFolder);
+                    writer.WriteBoolean(nameof(IsUsingDetailedSearch), IsUsingDetailedSearch);
+                    writer.WriteNumber(nameof(DoubleClickBehaviour), (int)DoubleClickBehaviour);
 
-                    writer.WriteStartArray(RecentFilesProperty);
+                    writer.WriteStartArray(nameof(RecentFiles));
                     for(int i = 0; i < RecentFiles.Count; i++)
                     {
                         if (File.Exists(RecentFiles[i].Path))

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace cs2entbrowser.ViewModels.Entity;
@@ -45,22 +46,25 @@ public class EntityOutputViewModel : ViewModelBase
         TimesToFire = timesToFire;
     }
 
-    public bool BasicSearch(string text)
+    public bool BasicSearch(Regex search, string text, bool outputChain)
     {
-        if (Output.ToLower().Contains(text))
+        if (search.IsMatch(Output))
             return true;
 
-        if (Target.ToLower().Contains(text))
+        if (search.IsMatch(Target))
             return true;
 
-        if (Input.ToLower().Contains(text))
+        if (search.IsMatch(Input))
             return true;
 
-        if (Parameter.ToLower().Contains(text))
+        if (search.IsMatch(Parameter))
             return true;
 
-        if (Delay.ToString().Contains(text))
+        if (search.IsMatch(Delay.ToString()))
             return true;
+
+        if (!outputChain)
+            return false;
 
         // Search for output chain e.g. OnPressed>entname>Kill
         string[] parts = text.Split('>', 5);

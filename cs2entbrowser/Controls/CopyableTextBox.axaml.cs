@@ -25,6 +25,15 @@ public partial class CopyableTextBox : UserControl
         InitializeComponent();
     }
 
+    private void Copy_Click(object sender, RoutedEventArgs e)
+    {
+        TopLevel? tl = TopLevel.GetTopLevel(topPanel);
+        if (tl != null && tl.Clipboard != null)
+        {
+            tl.Clipboard.SetTextAsync(Text);
+        }
+    }
+
     private void Panel_PointerEntered(object? sender, RoutedEventArgs e)
     {
         CopyButton.IsVisible = true;

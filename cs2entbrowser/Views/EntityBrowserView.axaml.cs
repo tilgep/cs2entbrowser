@@ -36,4 +36,19 @@ public partial class EntityBrowserView : UserControl
     {
         PropSearchText = PropertySearch_TextBox.Text.Trim();
     }
+
+    public string GetPath()
+    {
+        if (DataContext == null)
+        {
+            return "";
+        }
+
+        return ((EntityBrowserViewModel)DataContext).Path;
+    }
+
+    public void OutputTarget_DoubleTapped(object? sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine("double tabbed");
+    }
 }
