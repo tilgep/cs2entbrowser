@@ -57,10 +57,15 @@
 		</Style>
 	</Style>
 	
-	<!-- Datagrid has scrollbar not scrollviewer -->
+	<!-- Datagrid scrollbars are awful -->
 	<Style Selector="ScrollBar">
 		<Setter Property="AllowAutoHide" Value="False" />
-	</Style>
+	</Style>			
+	<Style Selector="DataGrid /template/ DataGridRowsPresenter#PART_RowsPresenter">
+		<Setter Property="Grid.RowSpan" Value="1" />
+		<Setter Property="Grid.ColumnSpan" Value="3" />
+	</Style>	
+
 
 	<Style Selector="Button,ToggleButton">
 		<Setter Property="Border.Background" Value="#22AAAAAA" />
@@ -110,10 +115,6 @@
 			<Setter Property="FontSize" Value="14" />
 			<Setter Property="Padding" Value="4" />
 		</Style>
-	</Style>
-
-	<Style Selector="HyperlinkButton AccessText">
-		<Setter Property="TextDecorations" Value="" />
 	</Style>
 
 	<Style Selector="Expander">
