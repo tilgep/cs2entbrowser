@@ -32,7 +32,7 @@ public partial class EntityBrowserView : UserControl
         DataContext = _vm;
     }
 
-    public void PropertySearchText_TextInput(object? sender, RoutedEventArgs e)
+    public void PropertySearchText_TextInput(object? sender, Avalonia.Input.TextInputEventArgs e)
     {
         PropSearchText = PropertySearch_TextBox.Text.Trim();
     }

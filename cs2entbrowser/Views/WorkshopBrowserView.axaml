@@ -43,12 +43,12 @@
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 						<Grid ColumnDefinitions="40,40,100,15, 120, 15, *, 140, 230">
-							<Button Content="Folder" Grid.Column="0" Command="{Binding FolderClick}">
-                <PathIcon Data="{StaticResource folder_regular}" MaxHeight="20" MaxWidth="20" />
-              </Button>
+							<Button Grid.Column="0" Command="{Binding FolderClick}">
+								<PathIcon Data="{StaticResource folder_regular}" MaxHeight="20" MaxWidth="20" />
+							</Button>
 							<Button Grid.Column="1" Command="{Binding SteamClick}">
-                <PathIcon Data="{StaticResource steam}" MaxHeight="20" MaxWidth="20" />
-              </Button>
+								<PathIcon Data="{StaticResource steam}" MaxHeight="20" MaxWidth="20" />
+							</Button>
 							<Button Content="EntBrowser" Grid.Column="2" Command="{Binding EntBrowserClick}"/>
               
 							<SelectableTextBlock Grid.Column="4" Text="{Binding Id}" />

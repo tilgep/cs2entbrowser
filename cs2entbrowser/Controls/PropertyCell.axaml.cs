@@ -71,7 +71,7 @@ public partial class PropertyCell : UserControl
         VpkService.Instance.RequestSearch(SearchType.Jump, _searchTarget, Text);
     }
 
-    private void DoubleClicked(object sender, RoutedEventArgs e)
+    private void DoubleClicked(object sender, Avalonia.Input.TappedEventArgs e)
     {
         if (SettingsService.Instance.DoubleClickBehaviour == DoubleClickBehaviour.Jump)
             VpkService.Instance.RequestSearch(SearchType.Jump, GetTarget(), Text);

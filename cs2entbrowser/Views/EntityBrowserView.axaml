@@ -93,8 +93,8 @@
 								<DataTemplate>
 									<Expander HorizontalAlignment="Stretch" MinHeight="40">
 										<Expander.Header>
-											<CheckBox Name="{Binding Id,StringFormat='\{0\}'}"
-												Content="{Binding Name,StringFormat='_\{0\}'}" 
+											<CheckBox Name="{Binding Id,StringFormat='{}{0}'}"
+												Content="{Binding Name,StringFormat='_{0}'}" 
 												IsThreeState="True" IsChecked="{Binding Enabled}"
 													  />
 										</Expander.Header>
@@ -103,8 +103,8 @@
 												<DataTemplate>
 													<Grid ColumnDefinitions="20,*" RowDefinitions="28,*" Margin="0 8 0 0">
 														<CheckBox Grid.Column="1" Grid.Row="0" 
-																  Name="{Binding Id,StringFormat='\{0\}'}"
-																  Content="{Binding Name,StringFormat='_\{0\}'}" 
+																  Name="{Binding Id,StringFormat='{}{0}'}"
+																  Content="{Binding Name,StringFormat='_{0}'}" 
 																  VerticalAlignment="Center"
 																  IsChecked="{Binding Enabled}" />
 													</Grid>
