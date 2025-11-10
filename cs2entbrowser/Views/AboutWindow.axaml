@@ -11,7 +11,7 @@
         Title="About">
   <Panel>
     <Grid RowDefinitions="50,15,*">
-      <TextBlock Grid.Row="0" Text="CS2EntBrowser v1.2" FontSize="24" HorizontalAlignment="Center" />
+      <TextBlock Grid.Row="0" Text="CS2EntBrowser v1.3" FontSize="24" HorizontalAlignment="Center" />
 
       <TextBlock Grid.Row="2" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="10 0 0 0">
         <Run Text="Made by:" TextDecorations="Underline" />
