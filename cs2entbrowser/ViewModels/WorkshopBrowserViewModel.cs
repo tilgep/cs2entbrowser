@@ -58,6 +58,9 @@ class WorkshopBrowserViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _itemCount, value);
     }
 
+    public WorkshopSort SortType = WorkshopSort.Name;
+    public SortDirection SortDirection = SortDirection.Ascending;
+
     // Needed for previewer
     public WorkshopBrowserViewModel()
     { }
@@ -125,5 +128,39 @@ class WorkshopBrowserViewModel : ViewModelBase
             if (item.Title.ToLower().Contains(SearchText.ToLower()) || item.Id.ToLower().Contains(SearchText.ToLower()))
                 FilteredItems.Add(item);
         }
+    }
+
+    public void UpdateSort()
+    {
+        SortItems();
+        Filter();
+    }
+
+    private void SortItems()
+    {
+        _items.Sort(delegate (WorkshopItem a, WorkshopItem b)
+        {
+            if (SortType == WorkshopSort.Id)
+            {
+                if (SortDirection == SortDirection.Ascending)
+                    return a.Id.CompareTo(b.Id);
+                else
+                    return b.Id.CompareTo(a.Id);
+            }
+            else if (SortType == WorkshopSort.Name)
+            {
+                if(SortDirection == SortDirection.Ascending)
+                    return a.Title.CompareTo(b.Title);
+                else
+                    return b.Title.CompareTo(a.Title);
+            }
+            else // size
+            {
+                if (SortDirection == SortDirection.Ascending)
+                    return a.Size.CompareTo(b.Size);
+                else
+                    return b.Size.CompareTo(a.Size);
+            }
+        });
     }
 }

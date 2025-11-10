@@ -27,6 +27,7 @@ class WorkshopItem : ViewModelBase
 
     public string Title { get; set; } = "";
 
+    public long Size { get; private set; } = 0;
     private string bytesSizeText = "";
     public string BytesSizeText
     {
@@ -57,15 +58,15 @@ class WorkshopItem : ViewModelBase
     async void GetVpkSize()
     {
         DirectoryInfo directoryInfo = new DirectoryInfo(Folder);
-        long size = 0;
-        size += await DirectorySizeCalculator.GetDirectorySizeAsync(directoryInfo);
+        Size = 0;
+        Size += await DirectorySizeCalculator.GetDirectorySizeAsync(directoryInfo);
 
         double gigabytes = 0.0;
-        double megabytes = (size / 1024.0) / 1024.0;
+        double megabytes = (Size / 1024.0) / 1024.0;
         if (megabytes > 1024.0)
             gigabytes = megabytes / 1024.0;
 
-        BytesSizeText = size.ToString("N0");
+        BytesSizeText = Size.ToString("N0");
 
         if (gigabytes != 0.0)
             SizeText = "(" + gigabytes.ToString("F2") + "GB)";
