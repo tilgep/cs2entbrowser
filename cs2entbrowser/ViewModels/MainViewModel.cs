@@ -19,7 +19,7 @@ namespace cs2entbrowser.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    public MainView View { get; private set; }
+    public MainWindow View { get; private set; }
     public static VpkService PageService => VpkService.Instance;
 
     private int _activePageIndex = 0;
@@ -51,8 +51,33 @@ public class MainViewModel : ViewModelBase
         set { this.RaiseAndSetIfChanged(ref _tabs, value); }
     }
 
+    private bool dblCickNone = false;
+    public bool DoubleClickNone
+    {
+        get => dblCickNone;
+        set => this.RaiseAndSetIfChanged(ref dblCickNone, value);
+    }
+    private bool dblCickSearch = false;
+    public bool DoubleClickSearch
+    {
+        get => dblCickSearch;
+        set => this.RaiseAndSetIfChanged(ref dblCickSearch, value);
+    }
+    private bool dblCickJump = false;
+    public bool DoubleClickJump
+    {
+        get => dblCickJump;
+        set => this.RaiseAndSetIfChanged(ref dblCickJump, value);
+    }
+    private bool _rawProperties = false;
+    public bool RawProperties
+    {
+        get => _rawProperties;
+        set => this.RaiseAndSetIfChanged(ref _rawProperties, value);
+    }
+
     public MainViewModel() { }
-    public MainViewModel(MainView view)
+    public MainViewModel(MainWindow view)
     {
         View = view;
 
@@ -71,6 +96,9 @@ public class MainViewModel : ViewModelBase
             .Subscribe(_ => SearchRequested());
 
         AddInitialTabs();
+
+        SetDoubleClickBehaviour(SettingsService.Instance.DoubleClickBehaviour);
+        RawProperties = SettingsService.Instance.RawProperties;
     }
 
     private void AddInitialTabs()
@@ -166,6 +194,12 @@ public class MainViewModel : ViewModelBase
         {
             desktopApp.Shutdown();
         }
+    }
+
+    public void RawPropertyCommand()
+    {
+        RawProperties = !RawProperties;
+        SettingsService.Instance.SetRawProperties(RawProperties);
     }
 
     public void OptionsCommand()
@@ -294,5 +328,36 @@ public class MainViewModel : ViewModelBase
         }
 
         VpkService.Instance.SearchFinished();
+    }
+
+    public void DoubleClickNoneCommand()
+    {
+        SettingsService.Instance.DoubleClickBehaviour = DoubleClickBehaviour.None;
+        SettingsService.Instance.WriteSettings();
+    }
+    public void DoubleClickSearchCommand()
+    {
+        SettingsService.Instance.DoubleClickBehaviour = DoubleClickBehaviour.Search;
+        SettingsService.Instance.WriteSettings();
+    }
+    public void DoubleClickJumpCommand()
+    {
+        SettingsService.Instance.DoubleClickBehaviour = DoubleClickBehaviour.Jump;
+        SettingsService.Instance.WriteSettings();
+    }
+    public void SetDoubleClickBehaviour(DoubleClickBehaviour mode)
+    {
+        switch(mode)
+        {
+            case DoubleClickBehaviour.None:
+                DoubleClickNone = true;
+                break;
+            case DoubleClickBehaviour.Search:
+                DoubleClickSearch = true;
+                break;
+            case DoubleClickBehaviour.Jump:
+                DoubleClickJump = true;
+                break;
+        }
     }
 }

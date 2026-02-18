@@ -51,6 +51,13 @@ public sealed class SettingsService : ReactiveObject
     public bool IsUsingDetailedSearch = false;
     public DoubleClickBehaviour DoubleClickBehaviour = DoubleClickBehaviour.Jump;
 
+    private bool _rawProperties = false;
+    public bool RawProperties
+    {
+        get => _rawProperties;
+        set => this.RaiseAndSetIfChanged(ref _rawProperties, value);
+    }
+
     public string GetWorkshopFolder()
     {
         return WorkshopFolder;
@@ -59,6 +66,12 @@ public sealed class SettingsService : ReactiveObject
     public void SetWorkshopFolder(string folder)
     {
         WorkshopFolder = folder;
+    }
+
+    public void SetRawProperties(bool state)
+    {
+        RawProperties = state;
+        WriteSettings();
     }
 
     public void AddRecentFile(string path, string title)
@@ -151,6 +164,13 @@ public sealed class SettingsService : ReactiveObject
                 }
             }
 
+            Debug.WriteLine("Reading raw properties");
+            if (root.TryGetProperty(nameof(RawProperties), out JsonElement rawElem))
+            {
+                if (rawElem.ValueKind == JsonValueKind.True || rawElem.ValueKind == JsonValueKind.False)
+                    RawProperties = rawElem.GetBoolean();
+            }
+
             Debug.WriteLine("Reading recent files");
             if (root.TryGetProperty(nameof(RecentFiles), out JsonElement recentFilesElem))
             {
@@ -206,6 +226,7 @@ public sealed class SettingsService : ReactiveObject
                     writer.WriteString(nameof(WorkshopFolder), WorkshopFolder);
                     writer.WriteBoolean(nameof(IsUsingDetailedSearch), IsUsingDetailedSearch);
                     writer.WriteNumber(nameof(DoubleClickBehaviour), (int)DoubleClickBehaviour);
+                    writer.WriteBoolean(nameof(RawProperties), RawProperties);
 
                     writer.WriteStartArray(nameof(RecentFiles));
                     for(int i = 0; i < RecentFiles.Count; i++)

@@ -32,6 +32,13 @@ class EntityBrowserViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isAdvancedSearch, value);
     }
 
+    private string _classnameSearchText = "";
+    public string ClassnameSearchText
+    {
+        get => _classnameSearchText;
+        set => this.RaiseAndSetIfChanged(ref _classnameSearchText, value);
+    }
+
     private string _basicSearchText = "";
     public string BasicSearchText
     {
@@ -96,7 +103,7 @@ class EntityBrowserViewModel : ViewModelBase
     }
 
     private EntityViewModel _safeSelectedItem;
-    public EntityViewModel SelectedItem
+    public EntityViewModel SelectedEntity
     {
         get => _safeSelectedItem;
         set => this.RaiseAndSetIfChanged(ref _safeSelectedItem, value);
@@ -108,6 +115,13 @@ class EntityBrowserViewModel : ViewModelBase
         get => _isLoaded;
         set => this.RaiseAndSetIfChanged(ref _isLoaded, value);
     }
+
+    private bool _showRawProperties = false;
+    public bool ShowRawProperties
+    {
+        get => _showRawProperties;
+        set => this.RaiseAndSetIfChanged(ref _showRawProperties, value);
+    }
     public EntityBrowserViewModel() { }
     public EntityBrowserViewModel(EntityBrowserView view, LoadedVpk vpk)
     {
@@ -116,6 +130,7 @@ class EntityBrowserViewModel : ViewModelBase
         if (SettingsService.Instance.Loaded)
         {
             IsAdvancedSearch = SettingsService.Instance.IsUsingDetailedSearch;
+            ShowRawProperties = SettingsService.Instance.RawProperties;
         }
 
         this.WhenAnyValue(x => x._SelectedItem)
@@ -123,6 +138,9 @@ class EntityBrowserViewModel : ViewModelBase
 
         this.WhenAnyValue(x => x.IsAdvancedSearch)
             .Subscribe(_ => AdvancedSearchChanged());
+
+        this.WhenAnyValue(x => x.ClassnameSearchText)
+            .Subscribe(_ => ClassnameSearch());
 
         this.WhenAnyValue(x => x.BasicSearchText)
             .Subscribe(_ => BasicSearch());
@@ -142,6 +160,10 @@ class EntityBrowserViewModel : ViewModelBase
         SettingsService.Instance.WhenAnyValue(x => x.Loaded)
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(_ => SettingsLoadedStateChanged());
+
+        SettingsService.Instance.WhenAnyValue(x => x.RawProperties)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(_ => RawPropertiesChanged());
 
         Title = vpk.Title;
         Path = vpk.Path;
@@ -164,7 +186,13 @@ class EntityBrowserViewModel : ViewModelBase
         if (SettingsService.Instance.Loaded)
         {
             IsAdvancedSearch = SettingsService.Instance.IsUsingDetailedSearch;
+            ShowRawProperties = SettingsService.Instance.RawProperties;
         }
+    }
+
+    public void RawPropertiesChanged()
+    {
+        ShowRawProperties = SettingsService.Instance.RawProperties;
     }
 
     public void SelectionChanged()
@@ -172,8 +200,20 @@ class EntityBrowserViewModel : ViewModelBase
         if (_SelectedItem == null)
             return;
         Debug.WriteLine("Now selected: " + _SelectedItem.Classname);
-        SelectedItem = _SelectedItem;
-        SelectedItem.FilterProperties(PropertySearchText.Trim().ToLower());
+
+        if (!_SelectedItem.ParsedRaw)
+            _SelectedItem.ParseRawProperties();
+
+        SelectedEntity = _SelectedItem;
+        SelectedEntity.FilterProperties(PropertySearchText.Trim().ToLower());
+    }
+
+    public void ClassnameSearch()
+    {
+        if (IsAdvancedSearch)
+            AdvancedSearch();
+        else
+            BasicSearch();
     }
 
     public void LumpsChanged()
@@ -205,7 +245,8 @@ class EntityBrowserViewModel : ViewModelBase
 
         Debug.WriteLine("Basic Searching for: " + BasicSearchText);
         FilteredItems.Clear();
-        
+
+        string searchClass = ClassnameSearchText.ToLower();
         string searchText = BasicSearchText.ToLower();
         Regex search = ConvertToRegex(searchText);
         bool outputChain = searchText.Contains('>');
@@ -218,12 +259,12 @@ class EntityBrowserViewModel : ViewModelBase
 
                 foreach (var ent in lump.Entities)
                 {
-                    if (ent.BasicSearch(search, searchText, outputChain))
+                    if (ent.BasicSearch(search, searchText, outputChain, searchClass))
                     {
                         FilteredItems.Add(ent);
-                        if(ent == SelectedItem)
+                        if(ent == SelectedEntity)
                         {
-                            _SelectedItem = SelectedItem;
+                            _SelectedItem = SelectedEntity;
                             SelectedIndex = FilteredItems.Count - 1;
                         }
                     }
@@ -244,6 +285,7 @@ class EntityBrowserViewModel : ViewModelBase
         Debug.WriteLine(AdvancedSearchKeyText + "   :   " + AdvancedSearchValueText + "   :   " + AdvancedSearchOutputText);
         FilteredItems.Clear();
 
+        string searchClass = ClassnameSearchText.ToLower();
         string keySearch = AdvancedSearchKeyText.ToLower();
         string valueSearch = AdvancedSearchValueText.ToLower();
         string outputSearch = AdvancedSearchOutputText.ToLower();
@@ -263,13 +305,16 @@ class EntityBrowserViewModel : ViewModelBase
 
                 foreach (var ent in lump.Entities)
                 {
+                    if (!ent.SearchClassname(searchClass))
+                        continue;
+
                     if (ent.SearchProperties(keyRegex, valueRegex) && 
                         ent.SearchConnections(outputRegex, outputSearch, outputChain))
                     {
                         FilteredItems.Add(ent);
-                        if (ent == SelectedItem)
+                        if (ent == SelectedEntity)
                         {
-                            _SelectedItem = SelectedItem;
+                            _SelectedItem = SelectedEntity;
                             SelectedIndex = FilteredItems.Count - 1;
                         }
                     }
@@ -285,8 +330,8 @@ class EntityBrowserViewModel : ViewModelBase
 
         Debug.WriteLine("Searching properties for: " + PropertySearchText);
 
-        if(SelectedItem != null)
-            SelectedItem.FilterProperties(PropertySearchText.Trim().ToLower());
+        if(SelectedEntity != null)
+            SelectedEntity.FilterProperties(PropertySearchText.Trim().ToLower());
     }
 
     public void LoadedTitleChanged()

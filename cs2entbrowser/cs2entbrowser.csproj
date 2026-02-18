@@ -32,4 +32,10 @@
     <PackageReference Include="ValvePak" Version="3.0.3.132" />
     <PackageReference Include="ZstdSharp.Port" Version="0.8.6" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\SelectedEntityView.axaml.cs">
+      <DependentUpon>SelectedEntityView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

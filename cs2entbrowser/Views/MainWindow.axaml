@@ -1,13 +1,58 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:cs2entbrowser.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:cs2entbrowser.Views"
+        xmlns:vm="using:cs2entbrowser.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="cs2entbrowser.Views.MainWindow"
         Icon="/Assets/EntBrowser.ico"
         Title="CS2EntBrowser"
-		ExtendClientAreaToDecorationsHint="True">
-        <views:MainView />
+		ExtendClientAreaToDecorationsHint="True"
+		x:DataType="vm:MainViewModel"
+		x:Name="thisWindow">
+        <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+	<Window.KeyBindings>
+		<KeyBinding Gesture="Ctrl+R" Command="{Binding RawPropertyCommand}" />
+	</Window.KeyBindings>
+	<Panel>
+		<Grid RowDefinitions="28,3*" ColumnDefinitions="*" ClipToBounds="True">
+			<DockPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" ClipToBounds="True">
+				<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4">
+					<TextBlock VerticalAlignment="Center" FontWeight="Bold"
+							   Text="Heyyy"
+							   Margin="16 0 12 0" />
+					<Menu>
+						<MenuItem Header="_File">
+							<MenuItem Header="_Open..." HotKey="Ctrl+O"
+									  InputGesture="Ctrl+O" Command="{Binding OpenFileCommand}" />
+							<MenuItem Header="_Open Recent" Name="RecentFiles" ItemsSource="{Binding RecentFiles}" />
+							<Separator />
+							<MenuItem Header="_Close" HotKey="Ctrl+W" Name="CloseCommandButton"
+								InputGesture="Ctrl+W" Command="{Binding CloseCommand}"
+								IsEnabled="{Binding ActivePageIndex}" />
+							<MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
+						</MenuItem>
+						<MenuItem Header="_Options">
+							<MenuItem x:Name="rawPropMenu" Header="_Raw Properties" ToggleType="CheckBox" InputGesture="Ctrl+R" 
+									  IsChecked="{Binding RawProperties}" Command="{Binding RawPropertyCommand}" />
+							<MenuItem Header="_Double Click">
+								<MenuItem Header="None" ToggleType="Radio" IsChecked="{Binding DoubleClickNone}" Command="{Binding DoubleClickNoneCommand}" />
+								<MenuItem Header="Search" ToggleType="Radio" IsChecked="{Binding DoubleClickSearch}" Command="{Binding DoubleClickSearchCommand}" />
+								<MenuItem Header="Jump" ToggleType="Radio" IsChecked="{Binding DoubleClickJump}" Command="{Binding DoubleClickJumpCommand}" />
+							</MenuItem>
+						</MenuItem>
+						<MenuItem Header="_About" Command="{Binding AboutCommand}" />
+					</Menu>
+				</StackPanel>
+			</DockPanel>
+			<TabControl Grid.Row="1" Margin="0 0 0 5" SelectedIndex="{Binding ActivePageIndex}"
+                  ItemsSource="{Binding Tabs}">
+			</TabControl>
+		</Grid>
+	</Panel>
 </Window>

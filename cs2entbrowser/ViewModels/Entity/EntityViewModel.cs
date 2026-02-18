@@ -11,6 +11,7 @@ using System.Reactive.Joins;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace cs2entbrowser.ViewModels.Entity;
 
@@ -36,6 +37,9 @@ public class EntityViewModel : ViewModelBase
 
     public string ListTargetname { get; private set; } = "";
     private string Worldname = "";
+
+    public bool ParsedRaw = false;
+    public string RawProperties { get; private set; } = "";
 
     public EntityViewModel(Utils.Entity entity)
     {
@@ -160,15 +164,20 @@ public class EntityViewModel : ViewModelBase
         }
     }
 
-    public bool BasicSearch(Regex search, string text, bool outputChain)
+    public bool BasicSearch(Regex search, string text, bool outputChain, string classname)
     {
-        if (text == "")
+        if (text == "" && classname == "")
             return true;
+
+        if (classname != "")
+        {
+            if (!SearchClassname(classname))
+                return false;
+        }
 
         foreach (var p in Properties)
         {
             if (search.IsMatch(p.Key) || search.IsMatch(p.Value))
-            //if (p.Key.ToLower().Contains(text) || p.Value.ToLower().Contains(text))
                 return true;
         }
 
@@ -179,6 +188,17 @@ public class EntityViewModel : ViewModelBase
         }
 
         return false;
+    }
+
+    public bool SearchClassname(string classname)
+    {
+        if (Classname == MissingClassname)
+            return false;
+
+        if (!Classname.Contains(classname))
+            return false;
+
+        return true;
     }
 
     public bool SearchProperties(Regex keySearch, Regex valueSearch)
@@ -225,5 +245,29 @@ public class EntityViewModel : ViewModelBase
         }
 
         return false;
+    }
+
+    public void ParseRawProperties()
+    {
+        foreach( var p in Properties)
+        {
+            RawProperties += $"\"{p.Key}\"    \"{p.Value}\"\n";
+        }
+
+        RawProperties += "\n\n";
+
+        foreach( var c in Connections)
+        {
+            RawProperties += "{\n";
+            RawProperties += $"  \"outputname\": \"{c.Output}\"\n";
+            RawProperties += $"  \"inputname\": \"{c.Input}\"\n";
+            RawProperties += $"  \"targetname\": \"{c.Target}\"\n";
+            RawProperties += $"  \"overrideparam\": \"{c.Parameter}\"\n";
+            RawProperties += $"  \"delay\": {c.Delay}\n";
+            RawProperties += $"  \"timestofire\": {c.TimesToFire}\n";
+            RawProperties += "}\n";
+        }
+
+        ParsedRaw = true;
     }
 }

@@ -20,6 +20,7 @@ class EntityImportantKeys
         "pushdir",
         "damage",
         "health",
-        "effect_name"
+        "effect_name",
+        "mapusagetype"
     };
 }

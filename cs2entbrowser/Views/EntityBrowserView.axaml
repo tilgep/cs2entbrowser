@@ -29,11 +29,17 @@
 			<ColumnDefinition Width="3*" MinWidth="200" />
 		</Grid.ColumnDefinitions>
 		<WrapPanel Grid.Row="0" Grid.ColumnSpan="3" VerticalAlignment="Center">
+
+			<ctrls:ClearableTextBox Text="{Binding ClassnameSearchText}" Watermark="Search Classname..."
+					 MaxHeight="32" Width="200"
+					 Name="ClassnameSearchBox"
+					 HorizontalAlignment="Right" Margin="15 0 0 0" />
+
 			<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsAdvancedSearch}" Margin="25 0 0 0">
 				<TextBlock Text="Detailed Search"/>
 			</CheckBox>
 			<ctrls:ClearableTextBox Text="{Binding BasicSearchText}" Watermark="Search All..."
-					 MaxHeight="32" Width="300"
+					 MaxHeight="32" Width="280"
 					 Name="BasicSearchTextBox"
 					 HorizontalAlignment="Right" Margin="45 0 0 0"
            IsVisible="{Binding !IsAdvancedSearch}" />
@@ -53,17 +59,17 @@
 			</PathIcon>
 
       <ctrls:ClearableTextBox Text="{Binding AdvancedSearchKeyText}" Watermark="Search Keys..."
-					 MaxHeight="32" Width="300"
+					 MaxHeight="32" Width="275"
 					 Name="AdvancedSearchKeyTextBox"
 					 HorizontalAlignment="Right" Margin="25 0 0 0"
            IsVisible="{Binding IsAdvancedSearch}" />
       <ctrls:ClearableTextBox Text="{Binding AdvancedSearchValueText}" Watermark="Search Values..."
-					 MaxHeight="32" Width="300"
+					 MaxHeight="32" Width="275"
 					 Name="AdvancedSearchValueTextBox"
 					 HorizontalAlignment="Right" Margin="15 0 0 0"
            IsVisible="{Binding IsAdvancedSearch}" />
       <ctrls:ClearableTextBox Text="{Binding AdvancedSearchOutputText}" Watermark="Search Outputs..."
-					 MaxHeight="32" Width="300"
+					 MaxHeight="32" Width="275"
 					 Name="AdvancedSearchOutputTextBox"
 					 HorizontalAlignment="Right" Margin="45 0 0 0"
            IsVisible="{Binding IsAdvancedSearch}" />
@@ -121,7 +127,7 @@
 			<GridSplitter Grid.Row="1" ResizeDirection="Rows" />
 			<ListBox Grid.Row="2" ItemsSource="{Binding FilteredItems}"
 					 ScrollViewer.AllowAutoHide="False" ScrollViewer.VerticalScrollBarVisibility="Auto"
-					 SelectedItem="{Binding _SelectedItem}"
+					 SelectedItem="{Binding _SelectedItem, Mode=TwoWay}"
 					 SelectedIndex="{Binding SelectedIndex}">
 				<ListBox.Styles>
 					<Style Selector="ListBoxItem">
@@ -145,111 +151,10 @@
 			
 		</Grid>
 		<GridSplitter Grid.Column="1" Grid.Row="1" ResizeDirection="Columns" />
-		<Grid Grid.Column="2" Grid.Row="1">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="32" />
-				<RowDefinition Height="3*" MinHeight="30" />
-				<RowDefinition Height="3" MinHeight="3" MaxHeight="3" />
-				<RowDefinition Height="2*" MinHeight="30" MaxHeight="500" />
-			</Grid.RowDefinitions>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="1*" />
-				<ColumnDefinition Width="1" />
-				<ColumnDefinition Width="1*" />
-			</Grid.ColumnDefinitions>
-			
-			<ctrls:ClearableTextBox Grid.Row="0" Grid.Column="0" Name="PropertySearch_TextBox"
-									Text="{Binding PropertySearchText}" Watermark="Search Properties..."
-									CornerRadiusA="0" TextInput="PropertySearchText_TextInput" />
-			<GridSplitter Grid.Column="1" Grid.Row="0" ResizeDirection="Columns" Width="1" />
-      
-      <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
-        <Rectangle Width="16" />
-				<SelectableTextBlock>
-					<Run Text="Lump: " />
-          <Run Text="{Binding SelectedItem.EntLumpName}" />
-        </SelectableTextBlock>
-      </StackPanel>
-			
-			<DataGrid Grid.Row="1" Grid.ColumnSpan="3" 
-					  ItemsSource="{Binding SelectedItem.FilteredProps}"
-					  Margin="0 0 0 16"
-					  IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="False"
-					  CanUserSortColumns="False" 
-					  SelectionMode="Extended">
-				<DataGrid.Columns>
-					<DataGridTemplateColumn Header="Key" SortMemberPath="Key" Width="2*">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityPropertyViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Key}" 
-                     Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="Value" SortMemberPath="Value" Width="3*">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityPropertyViewModel">
-								<ctrls:CopyableTextBox Text="{Binding Value}"
-                     Background="{Binding Matched, Converter={StaticResource MatchedColourConverter},ConverterParameter={Binding $parent[views:EntityBrowserView].PropSearchText}}" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-				</DataGrid.Columns>
-			</DataGrid>
-			
-			<GridSplitter Grid.Row="2" Grid.ColumnSpan="3" ResizeDirection="Rows" />
-			
-			<DataGrid Grid.Row="3" Grid.ColumnSpan="3" 
-					  ItemsSource="{Binding SelectedItem.Connections}"
-					  IsReadOnly="True" CanUserResizeColumns="True"
-					  ScrollViewer.VerticalScrollBarVisibility="Auto">
-				<DataGrid.Columns>
-					<DataGridTemplateColumn Header="Output" SortMemberPath="Output">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:PropertyCell Text="{Binding Output}" Target="Output" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="Target" SortMemberPath="Target">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:PropertyCell Text="{Binding Target}" Target="Value" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="Input" SortMemberPath="Input">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:PropertyCell Text="{Binding Input}" Target="Output" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="Parameter" SortMemberPath="Parameter">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:PropertyCell Text="{Binding Parameter}" Target="Output" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="Delay" SortMemberPath="Delay" >
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:PropertyCell Text="{Binding Delay}" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-					<DataGridTemplateColumn Header="TimesToFire" SortMemberPath="TimesToFire">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate DataType="vme:EntityOutputViewModel">
-								<ctrls:PropertyCell Text="{Binding TimesToFire}" />
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-				</DataGrid.Columns>
-			</DataGrid>
+
+		<views:SelectedEntityView Grid.Column="2" Grid.Row="1" />
+
 		</Grid>
-	</Grid>
 
       </Panel>
     </Border>
