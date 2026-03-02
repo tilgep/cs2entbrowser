@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using cs2entbrowser.Controls;
+using cs2entbrowser.Services;
 using cs2entbrowser.ViewModels;
 using cs2entbrowser.ViewModels.Entity;
 using ReactiveUI;
@@ -22,22 +23,6 @@ public partial class SelectedEntityView : UserControl
     {
         get => GetValue(_propSearchText);
         set => SetValue(_propSearchText, value);
-    }
-
-    // Define the property with your specific EntityViewModel type
-    public static readonly StyledProperty<EntityViewModel> SelectedEntityProperty =
-        AvaloniaProperty.Register<SelectedEntityView, EntityViewModel>(
-            nameof(SelectedEntity),
-            defaultBindingMode: BindingMode.TwoWay, enableDataValidation: true);
-
-    public EntityViewModel SelectedEntity
-    {
-        get => GetValue(SelectedEntityProperty);
-        set
-        {
-            System.Diagnostics.Debug.WriteLine($"SelectedEntity SET: {value?.Classname ?? "null"}");
-            SetValue(SelectedEntityProperty, value);
-        }
     }
 
     //private SelectedEntityViewModel vm;

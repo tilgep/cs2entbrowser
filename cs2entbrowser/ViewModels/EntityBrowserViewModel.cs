@@ -1,4 +1,13 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using cs2entbrowser.Controls;
+using cs2entbrowser.Services;
+using cs2entbrowser.Utils;
+using cs2entbrowser.ViewModels.Entity;
+using cs2entbrowser.Views;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -8,13 +17,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using cs2entbrowser.Controls;
-using cs2entbrowser.Services;
-using cs2entbrowser.Utils;
-using cs2entbrowser.ViewModels.Entity;
-using cs2entbrowser.Views;
-using ReactiveUI;
 
 namespace cs2entbrowser.ViewModels;
 
@@ -122,7 +124,29 @@ class EntityBrowserViewModel : ViewModelBase
         get => _showRawProperties;
         set => this.RaiseAndSetIfChanged(ref _showRawProperties, value);
     }
-    public EntityBrowserViewModel() { }
+
+    private ObservableCollection<EntityViewModel> _tabs = new();
+    public ObservableCollection<EntityViewModel> SelectedEntityTabs
+    {
+        get { return _tabs; }
+        set { this.RaiseAndSetIfChanged(ref _tabs, value); }
+    }
+    private int _selectedEntityIndex = 0;
+    public int SelectedEntityIndex
+    {
+        get => _selectedEntityIndex;
+        set => this.RaiseAndSetIfChanged(ref _selectedEntityIndex, value);
+    }
+
+    private EntityViewModel _entity;
+    public EntityViewModel Entity
+    {
+        get => _entity;
+        set => this.RaiseAndSetIfChanged(ref _entity, value);
+    }
+
+    public EntityBrowserViewModel() 
+    {}
     public EntityBrowserViewModel(EntityBrowserView view, LoadedVpk vpk)
     {
         View = view;
@@ -157,6 +181,9 @@ class EntityBrowserViewModel : ViewModelBase
         this.WhenAnyValue(x => x.PropertySearchText)
             .Subscribe(_ => PropertySearch());
 
+        this.WhenAnyValue(x => x.SelectedEntityIndex)
+            .Subscribe(_ => SelectedTabChanged());
+
         SettingsService.Instance.WhenAnyValue(x => x.Loaded)
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(_ => SettingsLoadedStateChanged());
@@ -179,6 +206,101 @@ class EntityBrowserViewModel : ViewModelBase
         IsLoaded = false;
         BasicSearchText = "";
         PropertySearchText = "";
+    }
+
+    private void SelectedTabChanged()
+    {
+        if (SelectedEntityIndex < 0 || SelectedEntityIndex >= SelectedEntityTabs.Count)
+            return;
+
+        if (SelectedEntityTabs[SelectedEntityIndex]  != null)
+        {
+            Entity = SelectedEntityTabs[SelectedEntityIndex];
+        }
+    }
+
+    private void PinChanged()
+    {
+        for (int i = SelectedEntityTabs.Count-1; i >= 0 ; i--)
+        {
+            if (i == SelectedEntityIndex || i < 0)
+                continue;
+
+            if (SelectedEntityTabs[i].IsPinned)
+                continue;
+
+            SelectedEntityTabs[i].disposable.Dispose();
+            SelectedEntityTabs.RemoveAt(i);
+        }
+    }
+
+    private void AddEntityTab(EntityViewModel entity, bool pin)
+    {
+        int index = SelectedEntityTabs.IndexOf(entity);
+        if (index != -1)
+        {
+            if (pin && !entity.IsPinned)
+                entity.IsPinned = true;
+
+            SelectedEntityIndex = index;
+            return;
+        }
+
+        entity.disposable = entity.WhenAnyValue(x => x.IsPinned)
+            .Subscribe(_ => PinChanged());
+
+        entity.IsPinned = pin;
+        if (SelectedEntityTabs.Count == 0)
+        {
+            SelectedEntityTabs.Add(entity);
+            SelectedEntityIndex = 0;
+            return;
+        }
+
+        if (SelectedEntityTabs[SelectedEntityTabs.Count - 1].IsPinned)
+        {
+            SelectedEntityTabs.Add(entity);
+            SelectedEntityIndex = SelectedEntityTabs.Count - 1;
+        }
+        else
+        {
+            if (!entity.IsPinned)
+            {
+                SelectedEntityTabs[SelectedEntityTabs.Count-1].disposable.Dispose();
+                SelectedEntityTabs.RemoveAt(SelectedEntityTabs.Count - 1);
+                SelectedEntityTabs.Add(entity);
+                SelectedEntityIndex = SelectedEntityTabs.Count - 1;
+            }
+            else
+            {
+                int pos = SelectedEntityTabs.Count - 1;
+                if (pos < 0) 
+                    pos = 0;
+                SelectedEntityTabs.Insert(pos, entity);
+                SelectedEntityIndex = pos;
+            }
+        }
+    }
+
+    public void PointerPressedEntityList(object? sender, PointerPressedEventArgs args)
+    {
+        var point = args.GetCurrentPoint(null);
+
+        if (point.Properties.IsLeftButtonPressed)
+        {
+            Debug.WriteLine("Pressed by left click");
+            AddEntityTab(SelectedEntity, false);
+        }
+        else if(point.Properties.IsRightButtonPressed)
+        {
+            Debug.WriteLine("Pressed by right click");
+            AddEntityTab(SelectedEntity, true);
+        }
+        else if(point.Properties.IsMiddleButtonPressed)
+        {
+            Debug.WriteLine("Pressed by middle click");
+            AddEntityTab(SelectedEntity, true);
+        }
     }
 
     void SettingsLoadedStateChanged()
@@ -206,6 +328,9 @@ class EntityBrowserViewModel : ViewModelBase
 
         SelectedEntity = _SelectedItem;
         SelectedEntity.FilterProperties(PropertySearchText.Trim().ToLower());
+        Entity = SelectedEntity;
+
+        AddEntityTab(SelectedEntity, false);
     }
 
     public void ClassnameSearch()

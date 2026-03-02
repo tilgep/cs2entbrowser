@@ -14,9 +14,8 @@
 		<utils:BoolToMatchedColourConverter x:Key="MatchedColourConverter" />
 	</UserControl.Resources>
 	<Panel>
-	
 		<Grid IsVisible="{Binding ShowRawProperties}" IsEnabled="{Binding ShowRawProperties}">
-			<TextBox IsReadOnly="True" Text="{Binding SelectedEntity.RawProperties}"
+			<TextBox IsReadOnly="True" Text="{Binding Entity.RawProperties}"
 					 FontFamily="Consolas" />
 		</Grid>
 	
@@ -42,12 +41,12 @@
     <Rectangle Width="16" />
 			<SelectableTextBlock>
 				<Run Text="Lump: " />
-        <Run Text="{Binding SelectedEntity.EntLumpName}" />
+        <Run Text="{Binding Entity.EntLumpName}" />
     </SelectableTextBlock>
     </StackPanel>
 			
 	<DataGrid Grid.Row="1" Grid.ColumnSpan="3" 
-				ItemsSource="{Binding SelectedEntity.FilteredProps}"
+				ItemsSource="{Binding Entity.FilteredProps}"
 				Margin="0 0 0 16"
 				IsReadOnly="True" CanUserResizeColumns="True" CanUserReorderColumns="False"
 				CanUserSortColumns="False" 
@@ -75,7 +74,7 @@
 	<GridSplitter Grid.Row="2" Grid.ColumnSpan="3" ResizeDirection="Rows" />
 			
 	<DataGrid Grid.Row="3" Grid.ColumnSpan="3" 
-				ItemsSource="{Binding SelectedEntity.Connections}"
+				ItemsSource="{Binding Entity.Connections}"
 				IsReadOnly="True" CanUserResizeColumns="True"
 				ScrollViewer.VerticalScrollBarVisibility="Auto">
 		<DataGrid.Columns>

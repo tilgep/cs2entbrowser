@@ -31,7 +31,7 @@ public class EntityViewModel : ViewModelBase
     public List<EntityPropertyViewModel> Properties { get; set; } = new();
     public List<EntityOutputViewModel> Connections { get; } = new();
 
-    public const string HammerId = "hammeruniqueid";
+    public string HammerId = "hammeruniqueid";
     public const string MissingClassname = "<ERROR>";
     public string Classname { get; private set; } = "";
 
@@ -40,6 +40,14 @@ public class EntityViewModel : ViewModelBase
 
     public bool ParsedRaw = false;
     public string RawProperties { get; private set; } = "";
+
+    private bool _ispinned = false;
+    public bool IsPinned
+    {
+        get => _ispinned;
+        set => this.RaiseAndSetIfChanged(ref _ispinned, value);
+    }
+    public IDisposable disposable;
 
     public EntityViewModel(Utils.Entity entity)
     {
@@ -77,6 +85,9 @@ public class EntityViewModel : ViewModelBase
                     break;
                 case "worldname":
                     Worldname = _value;
+                    break;
+                case "hammeruniqueid":
+                    HammerId = _value;
                     break;
             }
 
@@ -269,5 +280,10 @@ public class EntityViewModel : ViewModelBase
         }
 
         ParsedRaw = true;
+    }
+
+    public void Pin()
+    {
+        IsPinned = !IsPinned;
     }
 }
