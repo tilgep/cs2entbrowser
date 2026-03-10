@@ -270,13 +270,13 @@ public class EntityViewModel : ViewModelBase
         foreach( var c in Connections)
         {
             RawProperties += "{\n";
-            RawProperties += $"  \"outputname\": \"{c.Output}\"\n";
-            RawProperties += $"  \"inputname\": \"{c.Input}\"\n";
-            RawProperties += $"  \"targetname\": \"{c.Target}\"\n";
-            RawProperties += $"  \"overrideparam\": \"{c.Parameter}\"\n";
-            RawProperties += $"  \"delay\": {c.Delay}\n";
+            RawProperties += $"  \"outputname\": \"{c.Output}\",\n";
+            RawProperties += $"  \"targetname\": \"{c.Target}\",\n";
+            RawProperties += $"  \"inputname\": \"{c.Input}\",\n";
+            RawProperties += $"  \"overrideparam\": \"{c.Parameter}\",\n";
+            RawProperties += $"  \"delay\": {c.Delay},\n";
             RawProperties += $"  \"timestofire\": {c.TimesToFire}\n";
-            RawProperties += "}\n";
+            RawProperties += "},\n";
         }
 
         ParsedRaw = true;
