@@ -86,7 +86,7 @@ class WorkshopBrowserViewModel : ViewModelBase
     {
         if(SettingsService.Instance.Loaded)
         {
-            WorkshopFolder = SettingsService.Instance.GetWorkshopFolder();
+            WorkshopFolder = SettingsService.Instance.WorkshopFolder;
         }
     }
 
@@ -112,7 +112,6 @@ class WorkshopBrowserViewModel : ViewModelBase
 
         //Debug.WriteLine("Workshop folder changed to: " + WorkshopFolder);
         SettingsService.Instance.SetWorkshopFolder(WorkshopFolder);
-        SettingsService.Instance.WriteSettings();
     }
 
     public void RefreshClick()

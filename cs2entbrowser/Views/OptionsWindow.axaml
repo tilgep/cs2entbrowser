@@ -3,8 +3,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:cs2entbrowser.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="400"
-        Width="350" Height="400"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="400"
+        Width="800" Height="400"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         x:Class="cs2entbrowser.Views.OptionsWindow"
@@ -12,15 +12,44 @@
         Icon="/Assets/EntBrowser.png"
         Title="Options">
   <Panel Margin="10 0">
-    <Grid RowDefinitions="50,15,*">
-      <TextBlock Grid.Row="0" Text="Options" FontSize="24" HorizontalAlignment="Center" />
+    <Grid RowDefinitions="50,1,*">
+      <TextBlock Grid.Row="0" Text="Set IO Format" FontSize="24" HorizontalAlignment="Center" />
+        
+        <Grid RowDefinitions="*,*,*,*,*,*,*" ColumnDefinitions="*,5,*" Grid.Row="2">
+            <Grid ColumnDefinitions="2*,5,4*" Grid.Row="0" Height="28">
+                <TextBlock Text="Output: " Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
+                <TextBox Text="{Binding Output}" Grid.Row="0" Grid.Column="2" FontFamily="Consolas" />
+            </Grid>
+            <Grid ColumnDefinitions="2*,5,4*" Grid.Row="1" Height="28">
+                <TextBlock Text="Target: " Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
+                <TextBox Text="{Binding Target}" Grid.Row="0" Grid.Column="2" FontFamily="Consolas" />
+            </Grid>
+            <Grid ColumnDefinitions="2*,5,4*" Grid.Row="2" Height="28">
+                <TextBlock Text="Input: " Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
+                <TextBox Text="{Binding Input}" Grid.Row="0" Grid.Column="2" FontFamily="Consolas" />
+            </Grid>
+            <Grid ColumnDefinitions="2*,5,4*" Grid.Row="3" Height="28">
+                <TextBlock Text="Parameter: " Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
+                <TextBox Text="{Binding Param}" Grid.Row="0" Grid.Column="2" FontFamily="Consolas" />
+            </Grid>
+            <Grid ColumnDefinitions="2*,5,4*" Grid.Row="4" Height="28">
+                <TextBlock Text="Delay: " Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
+                <TextBox Text="{Binding Delay}" Grid.Row="0" Grid.Column="2" FontFamily="Consolas" />
+            </Grid>
+            <Grid ColumnDefinitions="2*,5,4*" Grid.Row="5" Height="28">
+                <TextBlock Text="Times To Fire: " Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
+                <TextBox Text="{Binding TTF}" Grid.Row="0" Grid.Column="2" FontFamily="Consolas" />
+            </Grid>
 
-      <StackPanel Orientation="Vertical" Grid.Row="2" >
-        <TextBlock Text="Double Click Behaviour" />
-        <RadioButton Content="None" GroupName="DoubleClickMode" IsChecked="{Binding DblClkNone}" />
-        <RadioButton Content="Jump" GroupName="DoubleClickMode" IsChecked="{Binding DblClkJump}" />
-        <RadioButton Content="Search" GroupName="DoubleClickMode" IsChecked="{Binding DblClkSearch}" />
-      </StackPanel>
+            <Grid RowDefinitions="30,150,50" Grid.Column="2"> 
+                <TextBlock Text="Example" Grid.Row="0" />
+                <TextBox Grid.Row="1" Height="150" Text="{Binding ExampleText}" IsReadOnly="True" FontFamily="Consolas" />
+
+                <Grid Grid.Row="2" >
+                    <Button Grid.Row="2" IsEnabled="{Binding CanSave}" Content="Save" Command="{Binding SaveButton}" HorizontalAlignment="Right" />
+                </Grid>
+            </Grid>
+        </Grid>
     </Grid>
   </Panel>
 </Window>

@@ -38,8 +38,14 @@
 							<MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
 						</MenuItem>
 						<MenuItem Header="_Options">
-							<MenuItem x:Name="rawPropMenu" Header="_Raw Properties" ToggleType="CheckBox" InputGesture="Ctrl+R" 
+							<MenuItem x:Name="rawPropMenu" Header="_JSON View" ToggleType="CheckBox" InputGesture="Ctrl+R" 
 									  IsChecked="{Binding RawProperties}" Command="{Binding RawPropertyCommand}" />
+							<MenuItem x:Name="rawPropEdit" Header="_Edit IO Format" >
+								<MenuItem Header="_StripperCS2" Command="{Binding SetStripperCS2}" />
+								<MenuItem Header="_StripperSharp" Command="{Binding SetStripperSharp}" />
+								<MenuItem Header="_Custom" Command="{Binding OpenRawEdit}"/>
+							</MenuItem>
+							<Separator />
 							<MenuItem Header="_Double Click">
 								<MenuItem Header="None" ToggleType="Radio" IsChecked="{Binding DoubleClickNone}" Command="{Binding DoubleClickNoneCommand}" />
 								<MenuItem Header="Search" ToggleType="Radio" IsChecked="{Binding DoubleClickSearch}" Command="{Binding DoubleClickSearchCommand}" />

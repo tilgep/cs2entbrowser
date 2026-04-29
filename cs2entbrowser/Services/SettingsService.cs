@@ -16,6 +16,7 @@ public enum DoubleClickBehaviour
     Jump,
     Search,
 }
+
 public class RecentFile
 {
     public string Title { get; set; }
@@ -46,7 +47,7 @@ public sealed class SettingsService : ReactiveObject
     public string SettingsFilePath = "";
 
     // Default Setting Values
-    string WorkshopFolder = @"C:/Program Files (x86)/Steam/steamapps/workshop";
+    public string WorkshopFolder { get; private set; } = @"C:/Program Files (x86)/Steam/steamapps/workshop";
     public List<RecentFile> RecentFiles = new();
     public bool IsUsingDetailedSearch = false;
     public DoubleClickBehaviour DoubleClickBehaviour = DoubleClickBehaviour.Jump;
@@ -58,14 +59,18 @@ public sealed class SettingsService : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _rawProperties, value);
     }
 
-    public string GetWorkshopFolder()
-    {
-        return WorkshopFolder;
-    }
+    public string IOOutput { get; private set; } = "outputname";
+    public string IOTarget { get; private set; } = "targetname";
+    public string IOInput { get; private set; } = "inputname";
+    public string IOParam { get; private set; } = "overrideparam";
+    public string IODelay { get; private set; } = "delay";
+    public string IOTTF { get; private set; } = "timestofire";
+
 
     public void SetWorkshopFolder(string folder)
     {
         WorkshopFolder = folder;
+        WriteSettings();
     }
 
     public void SetRawProperties(bool state)
@@ -91,6 +96,18 @@ public sealed class SettingsService : ReactiveObject
             RecentFiles.RemoveRange(MAX_RECENT_FILES, RecentFiles.Count - MAX_RECENT_FILES);
 
         WriteSettings();
+    }
+
+    public void SetIO(string o, string t, string i, string p, string d, string ttf)
+    {
+        IOOutput = o;
+        IOTarget = t;
+        IOInput = i;
+        IOParam = p;
+        IODelay = d;
+        IOTTF = ttf;
+        WriteSettings();
+        VpkService.Instance.DirtyIO = !VpkService.Instance.DirtyIO;
     }
 
     public void LoadSettings()
@@ -138,40 +155,14 @@ public sealed class SettingsService : ReactiveObject
                 } 
             }
 
-            Debug.WriteLine("Reading folder");
-            if (root.TryGetProperty(nameof(WorkshopFolder), out JsonElement folderElem))
-            {
-                string? folder = folderElem.GetString();
-                if (folder != null)
-                {
-                    WorkshopFolder = folder;
-                }
-            }
+            WorkshopFolder = ReadSettingString(root, nameof(WorkshopFolder), WorkshopFolder);
 
-            Debug.WriteLine("Reading detailed search");
-            if (root.TryGetProperty(nameof(IsUsingDetailedSearch), out JsonElement searchElem))
-            {
-                if(searchElem.ValueKind == JsonValueKind.True || searchElem.ValueKind == JsonValueKind.False)
-                    IsUsingDetailedSearch = searchElem.GetBoolean();
-            }
+            IsUsingDetailedSearch = ReadSettingBool(root, nameof(IsUsingDetailedSearch), IsUsingDetailedSearch);
 
-            Debug.WriteLine("Reading double click");
-            if (root.TryGetProperty(nameof(DoubleClickBehaviour), out JsonElement clickElem))
-            {
-                if (clickElem.ValueKind == JsonValueKind.Number && clickElem.TryGetInt32(out int clickValue))
-                {
-                    DoubleClickBehaviour = (DoubleClickBehaviour)clickValue;
-                }
-            }
+            DoubleClickBehaviour = (DoubleClickBehaviour)ReadSettingNumber(root, nameof(DoubleClickBehaviour), (int)DoubleClickBehaviour);
 
-            Debug.WriteLine("Reading raw properties");
-            if (root.TryGetProperty(nameof(RawProperties), out JsonElement rawElem))
-            {
-                if (rawElem.ValueKind == JsonValueKind.True || rawElem.ValueKind == JsonValueKind.False)
-                    RawProperties = rawElem.GetBoolean();
-            }
+            RawProperties = ReadSettingBool(root, nameof(RawProperties), RawProperties);
 
-            Debug.WriteLine("Reading recent files");
             if (root.TryGetProperty(nameof(RecentFiles), out JsonElement recentFilesElem))
             {
                 for (int i = 0; i < recentFilesElem.GetArrayLength(); i++)
@@ -205,6 +196,13 @@ public sealed class SettingsService : ReactiveObject
                 }
             }
 
+            IOOutput = ReadSettingString(root, nameof(IOOutput), IOOutput);
+            IOTarget = ReadSettingString(root, nameof(IOTarget), IOTarget);
+            IOInput = ReadSettingString(root, nameof(IOInput), IOInput);
+            IOParam = ReadSettingString(root, nameof(IOParam), IOParam);
+            IODelay = ReadSettingString(root, nameof(IODelay), IODelay);
+            IOTTF = ReadSettingString(root, nameof(IOTTF), IOTTF);
+
             Debug.WriteLine("Reading DONE");
         }
         catch (Exception ex)
@@ -227,6 +225,13 @@ public sealed class SettingsService : ReactiveObject
                     writer.WriteBoolean(nameof(IsUsingDetailedSearch), IsUsingDetailedSearch);
                     writer.WriteNumber(nameof(DoubleClickBehaviour), (int)DoubleClickBehaviour);
                     writer.WriteBoolean(nameof(RawProperties), RawProperties);
+
+                    writer.WriteString(nameof(IOOutput), IOOutput);
+                    writer.WriteString(nameof(IOTarget), IOTarget);
+                    writer.WriteString(nameof(IOInput), IOInput);
+                    writer.WriteString(nameof(IOParam), IOParam);
+                    writer.WriteString(nameof(IODelay), IODelay);
+                    writer.WriteString(nameof(IOTTF), IOTTF);
 
                     writer.WriteStartArray(nameof(RecentFiles));
                     for(int i = 0; i < RecentFiles.Count; i++)
@@ -252,5 +257,43 @@ public sealed class SettingsService : ReactiveObject
         {
             Debug.WriteLine(ex);
         }
+    }
+
+    private string ReadSettingString(JsonElement root, string keyName, string defaultValue = "")
+    {
+        string val = defaultValue;
+        if (root.TryGetProperty(keyName, out JsonElement elem))
+        {
+            string? elemString = elem.GetString();
+            if (elemString != null)
+            {
+                val = elemString;
+            }
+        }
+        return val;
+    }
+
+    private bool ReadSettingBool(JsonElement root, string keyName, bool defaultValue = false)
+    {
+        bool val = defaultValue;
+        if (root.TryGetProperty(keyName, out JsonElement elem))
+        {
+            if (elem.ValueKind == JsonValueKind.True || elem.ValueKind == JsonValueKind.False)
+                val = elem.GetBoolean();
+        }
+        return val;
+    }
+
+    private int ReadSettingNumber(JsonElement root, string keyName, int defaultValue = 0)
+    {
+        int val = defaultValue;
+        if (root.TryGetProperty(keyName, out JsonElement elem))
+        {
+            if (elem.ValueKind == JsonValueKind.Number && elem.TryGetInt32(out int elemValue))
+            {
+                val = elemValue;
+            }
+        }
+        return val;
     }
 }

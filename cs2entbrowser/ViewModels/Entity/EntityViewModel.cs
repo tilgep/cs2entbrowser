@@ -1,4 +1,5 @@
-﻿using cs2entbrowser.Utils;
+﻿using cs2entbrowser.Services;
+using cs2entbrowser.Utils;
 using cs2entbrowser.Utils.Parser.KV3;
 using ReactiveUI;
 using System;
@@ -39,7 +40,13 @@ public class EntityViewModel : ViewModelBase
     private string Worldname = "";
 
     public bool ParsedRaw = false;
-    public string RawProperties { get; private set; } = "";
+
+    private string _raw = "";
+    public string RawProperties
+    {
+        get => _raw;
+        set => this.RaiseAndSetIfChanged(ref _raw, value);
+    }
 
     private bool _ispinned = false;
     public bool IsPinned
@@ -260,25 +267,41 @@ public class EntityViewModel : ViewModelBase
 
     public void ParseRawProperties()
     {
-        foreach( var p in Properties)
+        string temp = "{\n";
+        foreach(var p in Properties)
         {
-            RawProperties += $"\"{p.Key}\"    \"{p.Value}\"\n";
+            temp += $"\"{p.Key}\": \"{p.Value}\",\n";
         }
 
-        RawProperties += "\n\n";
-
-        foreach( var c in Connections)
+        if (Connections.Count == 0)
         {
-            RawProperties += "{\n";
-            RawProperties += $"  \"outputname\": \"{c.Output}\",\n";
-            RawProperties += $"  \"targetname\": \"{c.Target}\",\n";
-            RawProperties += $"  \"inputname\": \"{c.Input}\",\n";
-            RawProperties += $"  \"overrideparam\": \"{c.Parameter}\",\n";
-            RawProperties += $"  \"delay\": {c.Delay},\n";
-            RawProperties += $"  \"timestofire\": {c.TimesToFire}\n";
-            RawProperties += "},\n";
+            temp += "}\n";
+            RawProperties = temp;
+            ParsedRaw = true;
+            return;
         }
 
+        int i = 0;
+        temp += "\n\n\"io\": [\n";
+        foreach(var c in Connections)
+        {
+            temp += "  {\n";
+            temp += $"    \"{SettingsService.Instance.IOOutput}\": \"{c.Output}\",\n";
+            temp += $"    \"{SettingsService.Instance.IOTarget}\": \"{c.Target}\",\n";
+            temp += $"    \"{SettingsService.Instance.IOInput}\": \"{c.Input}\",\n";
+            temp += $"    \"{SettingsService.Instance.IOParam}\": \"{c.Parameter}\",\n";
+            temp += $"    \"{SettingsService.Instance.IODelay}\": {c.Delay},\n";
+            temp += $"    \"{SettingsService.Instance.IOTTF}\": {c.TimesToFire}\n";
+
+            if (i != Connections.Count - 1)
+                temp += "  },\n";
+            else
+                temp += "  }\n";
+            i++;
+        }
+        temp += "]\n}\n";
+
+        RawProperties = temp;
         ParsedRaw = true;
     }
 

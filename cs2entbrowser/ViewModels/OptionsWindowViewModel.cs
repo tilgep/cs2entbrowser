@@ -14,25 +14,54 @@ namespace cs2entbrowser.ViewModels;
 public class OptionsWindowViewModel : ViewModelBase
 {
     public OptionsWindow OptionsWindow { get; private set; }
-
-    private bool dblClkNone = false;
-    private bool dblClkJump = false;
-    private bool dblClkSearch = false;
-
-    public bool DblClkNone
+    
+    private string _output = "";
+    private string _target = "";
+    private string _input = "";
+    private string _param = "";
+    private string _delay = "";
+    private string _ttf = "";
+    private string _exampleText = "";
+    private bool _canSave = true;
+    public string Output
     {
-        get => dblClkNone;
-        set => this.RaiseAndSetIfChanged(ref dblClkNone, value);
+        get => _output;
+        set => this.RaiseAndSetIfChanged(ref _output, value);
     }
-    public bool DblClkJump
+    public string Target
     {
-        get => dblClkJump;
-        set => this.RaiseAndSetIfChanged(ref dblClkJump, value);
+        get => _target;
+        set => this.RaiseAndSetIfChanged(ref _target, value);
     }
-    public bool DblClkSearch
+    public string Input
     {
-        get => dblClkSearch;
-        set => this.RaiseAndSetIfChanged(ref dblClkSearch, value);
+        get => _input;
+        set => this.RaiseAndSetIfChanged(ref _input, value);
+    }
+    public string Param
+    {
+        get => _param;
+        set => this.RaiseAndSetIfChanged(ref _param, value);
+    }
+    public string Delay
+    {
+        get => _delay;
+        set => this.RaiseAndSetIfChanged(ref _delay, value);
+    }
+    public string TTF
+    {
+        get => _ttf;
+        set => this.RaiseAndSetIfChanged(ref _ttf, value);
+    }
+    public string ExampleText
+    {
+        get => _exampleText;
+        set => this.RaiseAndSetIfChanged(ref _exampleText, value);
+    }
+    public bool CanSave
+    {
+        get => _canSave;
+        set => this.RaiseAndSetIfChanged(ref _canSave, value);
     }
 
     public OptionsWindowViewModel() { }
@@ -45,12 +74,18 @@ public class OptionsWindowViewModel : ViewModelBase
             GetSettings();
         }
 
-        this.WhenAnyValue(x => x.DblClkNone)
-            .Subscribe(_ => DoubleClickNoneChanged());
-        this.WhenAnyValue(x => x.DblClkJump)
-            .Subscribe(_ => DoubleClickJumpChanged());
-        this.WhenAnyValue(x => x.DblClkSearch)
-            .Subscribe(_ => DoubleClickSearchChanged());
+        this.WhenAnyValue(x => x.Output)
+            .Subscribe(_ => UpdateExampleText());
+        this.WhenAnyValue(x => x.Target)
+            .Subscribe(_ => UpdateExampleText());
+        this.WhenAnyValue(x => x.Input)
+            .Subscribe(_ => UpdateExampleText());
+        this.WhenAnyValue(x => x.Param)
+            .Subscribe(_ => UpdateExampleText());
+        this.WhenAnyValue(x => x.Delay)
+            .Subscribe(_ => UpdateExampleText());
+        this.WhenAnyValue(x => x.TTF)
+            .Subscribe(_ => UpdateExampleText());
 
         SettingsService.Instance.WhenAnyValue(x => x.Loaded)
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -59,16 +94,14 @@ public class OptionsWindowViewModel : ViewModelBase
 
     void GetSettings()
     {
-        DoubleClickBehaviour behaviour = SettingsService.Instance.DoubleClickBehaviour;
-        switch (behaviour)
-        {
-            case DoubleClickBehaviour.None:
-                SetDoubleClickNone(); break;
-            case DoubleClickBehaviour.Jump:
-                SetDoubleClickJump(); break;
-            case DoubleClickBehaviour.Search:
-                SetDoubleClickSearch(); break;
-        }
+        Output = SettingsService.Instance.IOOutput;
+        Target = SettingsService.Instance.IOTarget;
+        Input = SettingsService.Instance.IOInput;
+        Param = SettingsService.Instance.IOParam;
+        Delay = SettingsService.Instance.IODelay;
+        TTF = SettingsService.Instance.IOTTF;
+
+        UpdateExampleText();
     }
 
     void SettingsLoadedStateChanged()
@@ -79,43 +112,23 @@ public class OptionsWindowViewModel : ViewModelBase
         }
     }
 
-    private void DoubleClickNoneChanged()
+    public void UpdateExampleText()
     {
-        if (DblClkNone)
-            SetDoubleClickNone();
+        ExampleText = "{\n";
+        ExampleText += $"    \"{Output}\": \"OnStartTouch\",\n";
+        ExampleText += $"    \"{Target}\": \"server\",\n";
+        ExampleText += $"    \"{Input}\": \"Command\",\n";
+        ExampleText += $"    \"{Param}\": \"say Made by tilgep\",\n";
+        ExampleText += $"    \"{Delay}\": 10,\n";
+        ExampleText += $"    \"{TTF}\": -1,\n";
+        ExampleText += "}";
+        CanSave = true;
     }
-    private void DoubleClickJumpChanged()
+    
+
+    public void SaveButton()
     {
-        if (DblClkJump)
-            SetDoubleClickJump();
-    }
-    private void DoubleClickSearchChanged()
-    {
-        if (DblClkSearch)
-            SetDoubleClickSearch();
-    }
-    private void SetDoubleClickNone()
-    {
-        DblClkNone = true;
-        DblClkJump = false;
-        DblClkSearch = false;
-        SettingsService.Instance.DoubleClickBehaviour = DoubleClickBehaviour.None;
-        SettingsService.Instance.WriteSettings();
-    }
-    private void SetDoubleClickJump()
-    {
-        DblClkNone = false;
-        DblClkJump = true;
-        DblClkSearch = false;
-        SettingsService.Instance.DoubleClickBehaviour = DoubleClickBehaviour.Jump;
-        SettingsService.Instance.WriteSettings();
-    }
-    private void SetDoubleClickSearch()
-    {
-        DblClkNone = false;
-        DblClkJump = false;
-        DblClkSearch = true;
-        SettingsService.Instance.DoubleClickBehaviour = DoubleClickBehaviour.Search;
-        SettingsService.Instance.WriteSettings();
+        SettingsService.Instance.SetIO(Output, Target, Input, Param, Delay, TTF);
+        CanSave = false;
     }
 }

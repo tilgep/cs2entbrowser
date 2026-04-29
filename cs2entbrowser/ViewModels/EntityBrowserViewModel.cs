@@ -537,6 +537,23 @@ class EntityBrowserViewModel : ViewModelBase
         }
     }
 
+    public void RefreshRawStrings()
+    {
+        foreach (var file in VpkFiles)
+        {
+            foreach (var lump in file.EntityLumps)
+            {
+                foreach (var ent in lump.Entities)
+                {
+                    if (ent == _SelectedItem)
+                        ent.ParseRawProperties();
+                    else if (ent.ParsedRaw)
+                        ent.ParsedRaw = false;
+                }
+            }
+        }
+    }
+
     public void SearchForCommand(string target, SearchTarget searchTarget)
     {
         Debug.WriteLine("Searching for: " + target);

@@ -95,6 +95,10 @@ public class MainViewModel : ViewModelBase
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(_ => SearchRequested());
 
+        VpkService.Instance.WhenAnyValue(x => x.DirtyIO)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(_ => DirtyIO());
+
         AddInitialTabs();
 
         SetDoubleClickBehaviour(SettingsService.Instance.DoubleClickBehaviour);
@@ -202,7 +206,7 @@ public class MainViewModel : ViewModelBase
         SettingsService.Instance.SetRawProperties(RawProperties);
     }
 
-    public void OptionsCommand()
+    public void OpenRawEdit()
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -213,6 +217,15 @@ public class MainViewModel : ViewModelBase
                 optionsWindow.Show(mainWindow);
             }
         }
+    }
+
+    public void SetStripperCS2()
+    {
+        SettingsService.Instance.SetIO("outputname", "targetname", "inputname", "overrideparam", "delay", "timestofire");
+    }
+    public void SetStripperSharp()
+    {
+        SettingsService.Instance.SetIO("output", "target", "input", "param", "delay", "limit");
     }
     public void AboutCommand()
     {
@@ -358,6 +371,25 @@ public class MainViewModel : ViewModelBase
             case DoubleClickBehaviour.Jump:
                 DoubleClickJump = true;
                 break;
+        }
+    }
+
+    public void DirtyIO()
+    {
+        if (Tabs.Count <= 1)
+            return;
+
+        for (int i = 1; i < Tabs.Count; i++)
+        {
+            EntityBrowserView view = (EntityBrowserView)Tabs[i].Content;
+            if (view == null)
+                return;
+
+            EntityBrowserViewModel vm = (EntityBrowserViewModel)view.DataContext;
+            if (vm == null)
+                return;
+
+            vm.RefreshRawStrings();
         }
     }
 }

@@ -77,6 +77,13 @@ public sealed class VpkService : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _state, value);
     }
 
+    private bool _dirtyIO = false;
+    public bool DirtyIO
+    {
+        get => _dirtyIO;
+        set => this.RaiseAndSetIfChanged(ref _dirtyIO, value);
+    }
+
     public List<string> OpenPaths = new();
 
     private void SetState(LoadState newState)
