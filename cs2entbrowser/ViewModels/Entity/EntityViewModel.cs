@@ -250,6 +250,18 @@ public class EntityViewModel : ViewModelBase
 
         return false;
     }
+    public bool SearchPropertiesExact(string key, string value)
+    {
+        foreach (var p in Properties)
+        {
+            if (p.Key == key && p.Value == value)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public bool SearchConnections(Regex search, string text, bool outputChain)
     {

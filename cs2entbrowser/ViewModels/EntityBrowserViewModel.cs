@@ -519,6 +519,25 @@ class EntityBrowserViewModel : ViewModelBase
     public void JumpToCommand(string target)
     {
         Debug.WriteLine("Jumping to: " + target);
+
+        // Check for perfect match first
+        foreach (var file in VpkFiles)
+        {
+            foreach (var lump in file.EntityLumps)
+            {
+                foreach (var ent in lump.Entities)
+                {
+                    if (ent.SearchPropertiesExact("targetname", target))
+                    {
+                        _SelectedItem = ent;
+                        Debug.WriteLine("Perfectly matched: " + target);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // Check for fuzzy match after
         Regex search = ConvertToRegex(target);
         Debug.WriteLine("Regex: "+search.ToString());
         foreach (var file in VpkFiles)
@@ -530,6 +549,7 @@ class EntityBrowserViewModel : ViewModelBase
                     if (ent.SearchPropertiesExact("targetname", search))
                     {
                         _SelectedItem = ent;
+                        Debug.WriteLine("Fuzzy matched: " + target);
                         return;
                     }
                 }
