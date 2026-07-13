@@ -9,6 +9,7 @@ using DynamicData.Binding;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace cs2entbrowser.Views;
 
@@ -49,7 +50,7 @@ public partial class WorkshopBrowserView : UserControl
         if (result.Count == 0)
             return;
 
-        Viewmodel().WorkshopFolder = result[0].Path.AbsolutePath;
+        Viewmodel().WorkshopFolder = HttpUtility.UrlDecode(result[0].Path.AbsolutePath);
     }
 
     public void SortId(object sender, RoutedEventArgs e)
